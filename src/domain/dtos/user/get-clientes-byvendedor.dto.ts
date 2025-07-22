@@ -1,5 +1,6 @@
 export class GetClientsBySalesPersonDto {
   constructor(
+    public _id: string, // ID del vendedor
     public id: string,
     public name: string,
     public lastName: string,
@@ -13,6 +14,7 @@ export class GetClientsBySalesPersonDto {
     const principalPhone = model.phone?.find((p: any) => p.IsPrincipal)?.NumberPhone ?? '';
 
     return new GetClientsBySalesPersonDto(
+      model._id,
       model.id,
       model.name,
       model.lastName,

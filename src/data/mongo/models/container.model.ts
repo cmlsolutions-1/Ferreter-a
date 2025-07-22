@@ -28,10 +28,10 @@ const containerSchema = new mongoose.Schema({
 
 containerSchema.set('toJSON', {
     virtuals: true,
-    versionKey: false,
-    transform: function (doc, ret, options) {
-        delete ret._id;
-    },
+    versionKey: false
+    // transform: function (doc, ret, options) {
+    //     delete ret._id;
+    // },
 })
 
 

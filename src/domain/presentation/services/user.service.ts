@@ -18,27 +18,25 @@ export class UserService {
 
             if (dto.name !== undefined) user.name = dto.name;
             if (dto.lastName !== undefined) user.lastName = dto.lastName;
+
             if (dto.email) {
-                user.email = new mongoose.Types.DocumentArray(
-                    dto.email.map(e => ({
-                        EmailAddres: e.EmailAddres,
-                        IsPrincipal: e.IsPrincipal,
-                    }))
-                );
+                console.log('Updating user email:', dto.email);
+                user.set('email', dto.email.map(e => ({
+                    EmailAddres: e.emailAddress,
+                    IsPrincipal: e.isPrincipal,
+                })));
             }
 
             if (dto.phone) {
-                user.phone = new mongoose.Types.DocumentArray(
-                    dto.phone.map(p => ({
-                        NumberPhone: p.NumberPhone,
-                        IsPrincipal: p.IsPrincipal,
-                        Indicative: p.Indicative,
-                    })))
+                user.set('phone', dto.phone.map(p => ({
+                    NumberPhone: p.numberPhone,
+                    IsPrincipal: p.isPrincipal,
+                    Indicative: p.indicative,
+                })));
             }
 
-            if (dto.addres !== undefined) user.addres = dto.addres;
+            if (dto.address !== undefined) user.addres = dto.address;
             if (dto.city !== undefined) user.city = new mongoose.Types.ObjectId(dto.city);
-            if (dto.role !== undefined) user.role = dto.role;
             if (dto.priceCategory !== undefined) user.priceCategory = new mongoose.Types.ObjectId(dto.priceCategory);
 
             await user.save();
@@ -73,7 +71,7 @@ export class UserService {
             // .populate('city', '_id')
             .populate('salesPerson', '_id')
             .populate('clients', '_id')
-            // .populate('priceCategory', '_id');
+        // .populate('priceCategory', '_id');
 
         if (!user) throw CustomError.notFound('Usuario no encontrado');
 
@@ -108,7 +106,7 @@ export class UserService {
             // const users = await UserModel.find({ role }).populate('city', '_id');
             console.log(role);
             const users = await UserModel.find({ role });
-            return  ViewUserDto.fromModelArray(users);
+            return ViewUserDto.fromModelArray(users);
         } catch (error) {
             throw CustomError.internalServer(`Error al obtener usuarios por rol: ${error}`);
         }

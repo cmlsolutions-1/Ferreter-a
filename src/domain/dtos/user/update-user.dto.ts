@@ -1,14 +1,14 @@
 import { regularExps } from "../../../config";
 
 interface PhoneDto {
-  NumberPhone: string;
-  IsPrincipal: boolean;
-  Indicative: string;
+  numberPhone: string;
+  isPrincipal: boolean;
+  indicative: string;
 }
 
 interface EmailDto {
-  EmailAddres: string;
-  IsPrincipal: boolean;
+  emailAddress: string;
+  isPrincipal: boolean;
 }
 
 enum Role {
@@ -24,9 +24,8 @@ export class UpdateUserDto {
     public lastName?: string,
     public email?: EmailDto[],
     public phone?: PhoneDto[],
-    public addres?: string[],
+    public address?: string[],
     public city?: string,
-    public role?: Role,
     public priceCategory?: string
   ) {}
 
@@ -37,7 +36,7 @@ export class UpdateUserDto {
       lastName,
       email,
       phone,
-      addres,
+      address,
       city,
       role,
       priceCategory,
@@ -49,9 +48,9 @@ export class UpdateUserDto {
       if (!Array.isArray(email) || email.length === 0) return ["El campo email debe ser una lista"];
       let isPrincipal = false;
       for (const e of email) {
-        if (!e.EmailAddres || !regularExps.email.test(e.EmailAddres)) return [`El correo no es válido: ${e.EmailAddres}`];
-        if (typeof e.IsPrincipal !== "boolean") return ["El campo IsPrincipal en email debe ser booleano"];
-        if (e.IsPrincipal) isPrincipal = true;
+        if (!e.emailAddress || !regularExps.email.test(e.emailAddress)) return [`El correo no es válido: ${e.emailAddress}`];
+        if (typeof e.isPrincipal !== "boolean") return ["El campo IsPrincipal en email debe ser booleano"];
+        if (e.isPrincipal) isPrincipal = true;
       }
       if (!isPrincipal) return ["Debe haber al menos un correo principal"];
     }
@@ -60,10 +59,10 @@ export class UpdateUserDto {
       if (!Array.isArray(phone) || phone.length === 0) return ["El campo phone debe ser una lista"];
       let tienePrincipal = false;
       for (const p of phone) {
-        if (!p.NumberPhone) return ["El campo NumberPhone es obligatorio"];
-        if (typeof p.IsPrincipal !== "boolean") return ["El campo IsPrincipal en phone debe ser booleano"];
-        if (!p.Indicative) return ["El campo Indicative es obligatorio"];
-        if (p.IsPrincipal) tienePrincipal = true;
+        if (!p.numberPhone) return ["El campo NumberPhone es obligatorio"];
+        if (typeof p.isPrincipal !== "boolean") return ["El campo IsPrincipal en phone debe ser booleano"];
+        if (!p.indicative) return ["El campo Indicative es obligatorio"];
+        if (p.isPrincipal) tienePrincipal = true;
       }
       if (!tienePrincipal) return ["Debe haber al menos un número de teléfono principal"];
     }
@@ -78,9 +77,8 @@ export class UpdateUserDto {
         lastName,
         email,
         phone,
-        addres,
+        address,
         city,
-        role,
         priceCategory
       ),
     ];

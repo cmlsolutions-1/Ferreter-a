@@ -1,5 +1,6 @@
 export class ListUserDto {
   constructor(
+    public _id: string, 
     public id: string,
     public name: string,
     public lastName: string,
@@ -15,6 +16,7 @@ export class ListUserDto {
     const principalPhone = model.phone?.find((p: any) => p.IsPrincipal)?.NumberPhone ?? '';
 
     return new ListUserDto(
+      model._id,
       model.id,
       model.name,
       model.lastName,

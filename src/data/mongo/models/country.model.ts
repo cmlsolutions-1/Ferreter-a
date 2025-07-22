@@ -17,10 +17,10 @@ const countrySchema = new mongoose.Schema({
 
 countrySchema.set('toJSON', {
     virtuals: true,
-    versionKey: false,
-    transform: function (doc, ret, options) {
-        delete ret._id;
-    },
+    versionKey: false
+    // transform: function (doc, ret, options) {
+    //     delete ret._id;
+    // },
 })
 
 

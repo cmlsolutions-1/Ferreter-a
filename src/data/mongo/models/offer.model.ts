@@ -51,10 +51,10 @@ const offerSchema = new mongoose.Schema({
 
 offerSchema.set('toJSON', {
     virtuals: true,
-    versionKey: false,
-    transform: function (doc, ret, options) {
-        delete ret._id;
-    },
+    versionKey: false
+    // transform: function (doc, ret, options) {
+    //     delete ret._id;
+    // },
 })
 
 
