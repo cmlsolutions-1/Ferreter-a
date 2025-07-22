@@ -4,6 +4,7 @@ import { CustomError } from '../../errors/custom.errors';
 import { LoginUserDto } from '../../dtos/auth/login-user.dto';
 import { RegisterUserDto } from '../../dtos/auth/register-user.dto';
 import { EmailService } from './email.service';
+import mongoose from 'mongoose';
 
 
 
@@ -17,7 +18,7 @@ export class AuthService {
 
     public async registerUser(registerUserDto: RegisterUserDto) {
 
-        const emailAddresses = registerUserDto.email.map(e => e.EmailAddres.toLowerCase().trim());
+        const emailAddresses = registerUserDto.email.map(e => e.emailAddres.toLowerCase().trim());
 
         const existUser = await UserModel.findOne({
             'email.EmailAddres': { $in: emailAddresses }
@@ -25,7 +26,8 @@ export class AuthService {
         if (existUser) throw CustomError.badRequest('Email already exist');
 
         try {
-            const user = new UserModel(registerUserDto);
+            const userModelData = this.registerUserDtoToModel(registerUserDto);
+            const user = new UserModel(userModelData);
 
             user.password = bcryptAdapter.hash(registerUserDto.password);
 
@@ -122,5 +124,29 @@ export class AuthService {
         return true;
     }
 
+    private registerUserDtoToModel(dto: RegisterUserDto): any {
+        return {
+            id: dto.id,
+            name: dto.name,
+            lastName: dto.lastName,
+            email: dto.email.map(e => ({
+                EmailAddres: e.emailAddres,
+                IsPrincipal: e.isPrincipal,
+            })),
+            phone: dto.phone.map(p => ({
+                NumberPhone: p.numberPhone,
+                IsPrincipal: p.isPrincipal,
+                Indicative: p.indicative,
+            })),
+            addres: dto.address,
+            city: new mongoose.Types.ObjectId(dto.city),
+            password: dto.password,
+            role: dto.role,
+            priceCategory: new mongoose.Types.ObjectId(dto.priceCategory),
+            salesPerson: dto.salesPerson ? new mongoose.Types.ObjectId(dto.salesPerson) : undefined,
+            clients: dto.clients?.map(c => new mongoose.Types.ObjectId(c)) ?? [],
+        };
+    }
 
 }
+

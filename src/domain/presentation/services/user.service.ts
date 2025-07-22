@@ -87,7 +87,7 @@ export class UserService {
 
     public async getClientsBySalesPersonId(salesPersonId: string): Promise<GetClientsBySalesPersonDto[]> {
 
-        const seller = await UserModel.findOne({ id: salesPersonId, role: 'SalesPerson' });
+        const seller = await UserModel.findOne({ _id: salesPersonId, role: 'SalesPerson' });
         if (!seller) throw CustomError.notFound('Vendedor no encontrado');
 
         const clients = await UserModel.find({ salesPerson: seller._id, role: 'Client' });
