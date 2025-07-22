@@ -33,6 +33,7 @@ export class UserController {
   getUserById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
+      console.log(`Fetching user with ID: ${id}`);
       const user = await this.userService.getUserById(id);
       return res.status(200).json(user);
     } catch (error) {
@@ -53,6 +54,17 @@ export class UserController {
     try {
       const { salesPersonId } = req.params;
       const clients = await this.userService.getClientsBySalesPersonId(salesPersonId);
+      return res.status(200).json(clients);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getSalesPersons = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log('Fetching SalesPersons');
+      const role = "SalesPerson";
+      const clients = await this.userService.getUsersByRole(role);
       return res.status(200).json(clients);
     } catch (error) {
       next(error);

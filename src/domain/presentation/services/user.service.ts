@@ -6,6 +6,7 @@ import { GetUserByIdDto } from '../../dtos/user/get-user-by-id.dto';
 import { ListUserDto } from '../../dtos/user/list-user.dto';
 import { GetClientsBySalesPersonDto } from '../../dtos/user/get-clientes-byvendedor.dto';
 import mongoose from 'mongoose';
+import { ViewUserDto } from '../../dtos/user/get-user-role.dto';
 
 export class UserService {
 
@@ -68,11 +69,11 @@ export class UserService {
     }
 
     public async getUserById(userId: string): Promise<GetUserByIdDto> {
-        const user = await UserModel.findOne({ id: userId })
-            .populate('city', '_id') 
+        const user = await UserModel.findOne({ _id: userId })
+            // .populate('city', '_id')
             .populate('salesPerson', '_id')
             .populate('clients', '_id')
-            .populate('priceCategory', '_id');
+            // .populate('priceCategory', '_id');
 
         if (!user) throw CustomError.notFound('Usuario no encontrado');
 
@@ -80,13 +81,14 @@ export class UserService {
     }
 
     public async getAllUsers(): Promise<ListUserDto[]> {
-        const users = await UserModel.find().populate('city', '_id');
+        // const users = await UserModel.find().populate('city', '_id');
+        const users = await UserModel.find();
 
         return ListUserDto.fromModelArray(users);
     }
 
     public async getClientsBySalesPersonId(salesPersonId: string): Promise<GetClientsBySalesPersonDto[]> {
-        
+
         const seller = await UserModel.findOne({ id: salesPersonId, role: 'SalesPerson' });
         if (!seller) throw CustomError.notFound('Vendedor no encontrado');
 
@@ -95,6 +97,21 @@ export class UserService {
         return GetClientsBySalesPersonDto.fromModelArray(clients);
     }
 
+    public async getUserRole(userId: string): Promise<string> {
+        const user = await UserModel.findOne({ id: userId });
+        if (!user) throw CustomError.notFound('Usuario no encontrado');
 
+        return user.role;
+
+    } public async getUsersByRole(role: string): Promise<ViewUserDto[]> {
+        try {
+            // const users = await UserModel.find({ role }).populate('city', '_id');
+            console.log(role);
+            const users = await UserModel.find({ role });
+            return  ViewUserDto.fromModelArray(users);
+        } catch (error) {
+            throw CustomError.internalServer(`Error al obtener usuarios por rol: ${error}`);
+        }
+    }
 
 }

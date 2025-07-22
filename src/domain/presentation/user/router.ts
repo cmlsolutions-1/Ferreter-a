@@ -13,9 +13,10 @@ export class UserRoutes {
     const userController = new UserController(userService);
     router.put('/', userController.updateUser);
     router.post('/delete', userController.deleteUser); 
-    router.get('/:id', userController.getUserById); 
+    router.get('/getById/:id', userController.getUserById); 
     router.get('/', userController.getAllUsers );
-    router.get('/salesperson/:salesPersonId', userController.getClientsBySalesPerson);
+    router.get('/salesPerson', userController.getSalesPersons);
+    router.get('/clientsBySalesPerson/:salesPersonId', userController.getClientsBySalesPerson);
 
     return router;
   }

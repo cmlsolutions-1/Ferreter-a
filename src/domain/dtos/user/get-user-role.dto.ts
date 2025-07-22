@@ -60,4 +60,9 @@ export class ViewUserDto {
 
     return base;
   }
+
+  static fromModelArray(models: any[]): ViewUserDto[] {
+    return models.map(model => ViewUserDto.fromModel(model));
+  }
+
 }
