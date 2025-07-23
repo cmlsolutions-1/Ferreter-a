@@ -70,4 +70,15 @@ export class UserController {
       next(error);
     }
   };
+
+  getClients = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log('Fetching SalesPersons');
+      const role = "Client";
+      const clients = await this.userService.getUsersByRole(role);
+      return res.status(200).json(clients);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
