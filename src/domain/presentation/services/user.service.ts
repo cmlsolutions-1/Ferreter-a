@@ -16,6 +16,15 @@ export class UserService {
             const user = await UserModel.findOne({ id: dto.id });
             if (!user) throw CustomError.notFound('Usuario no encontrado');
 
+
+            if(user.role === 'Client'){
+                const salesPerson = await UserModel.findOne({ _id: dto.idSalesPerson });
+                if(!salesPerson) throw CustomError.notFound('Vendedor no encontrado');
+                if(salesPerson.role !== 'SalesPerson') throw CustomError.badRequest('El usuario no es un vendedor');
+                user.salesPerson = new mongoose.Types.ObjectId(dto.idSalesPerson) ;  
+
+            } 
+
             if (dto.name !== undefined) user.name = dto.name;
             if (dto.lastName !== undefined) user.lastName = dto.lastName;
 
