@@ -3,6 +3,7 @@ import { UserPhoneDto } from "./sub-dto-user.dto";
 
 export class GetUserByIdDto {
   constructor(
+    public _id: string, 
     public id: string,
     public name: string,
     public lastName: string,
@@ -20,6 +21,7 @@ export class GetUserByIdDto {
 
   static fromModel(model: any): GetUserByIdDto {
     return new GetUserByIdDto(
+      model._id?.toString() ?? model.id?.toString() ?? '',
       model.id,
       model.name,
       model.lastName,

@@ -19,6 +19,7 @@ enum Role {
 
 export class UpdateUserDto {
   private constructor(
+    public _id: string,
     public id: string,
     public name?: string,
     public lastName?: string,
@@ -32,6 +33,7 @@ export class UpdateUserDto {
 
   static create(object: { [key: string]: any }): [string?, UpdateUserDto?] {
     const {
+      _id,  
       id,
       name,
       lastName,
@@ -44,7 +46,7 @@ export class UpdateUserDto {
       idSalesPerson,
     } = object;
 
-    if (!id) return ["El ID es obligatorio para actualizar el usuario"];
+    if (!_id) return ["El ID es obligatorio para actualizar el usuario"];
 
     if (email) {
       if (!Array.isArray(email) || email.length === 0) return ["El campo email debe ser una lista"];
@@ -74,6 +76,7 @@ export class UpdateUserDto {
     return [
       undefined,
       new UpdateUserDto(
+        _id, 
         id,
         name,
         lastName,

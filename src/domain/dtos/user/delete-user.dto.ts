@@ -5,7 +5,7 @@ export enum UserState {
 
 export class DeleteUserDto {
   private constructor(
-    public id: string,
+    public _id: string,
     public state: UserState,
   ) {}
 

@@ -3,6 +3,7 @@ import { UserPhoneDto } from "./sub-dto-user.dto";
 
 export class ViewUserDto {
   constructor(
+    public _id: string, // Cambiado de id a _id para seguir la convención de Mongoose
     public id: string,
     public name: string,
     public lastName: string,
@@ -17,6 +18,7 @@ export class ViewUserDto {
 
   static fromModel(model: any): ViewUserDto {
     const base = new ViewUserDto(
+      model._id?.toString() ?? model.id?.toString() ?? '',
       model.id,
       model.name,
       model.lastName,

@@ -13,7 +13,7 @@ export class UserService {
     public async updateUser(dto: UpdateUserDto) {
 
         try {
-            const user = await UserModel.findOne({ id: dto.id });
+            const user = await UserModel.findOne({ _id: dto._id });
             if (!user) throw CustomError.notFound('Usuario no encontrado');
 
 
@@ -62,7 +62,7 @@ export class UserService {
 
     public async deleteUser(dto: DeleteUserDto) {
 
-        const user = await UserModel.findOne({ id: dto.id });
+        const user = await UserModel.findOne({ _id: dto._id });
         if (!user) throw CustomError.notFound('Usuario no encontrado');
 
         user.state = dto.state;
@@ -105,7 +105,7 @@ export class UserService {
     }
 
     public async getUserRole(userId: string): Promise<string> {
-        const user = await UserModel.findOne({ id: userId });
+        const user = await UserModel.findOne({ _id: userId });
         if (!user) throw CustomError.notFound('Usuario no encontrado');
 
         return user.role;
