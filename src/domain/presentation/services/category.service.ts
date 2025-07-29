@@ -92,4 +92,11 @@ export class CategoryService {
             throw CustomError.notFound('Categoria no encontrada');
         }
     }
+
+    public async validateSubCategoryExists(idSubCategory: string): Promise<void> {
+        const subCategory = await SubCategoryModel.findById(new mongoose.Types.ObjectId(new mongoose.Types.ObjectId(idSubCategory)));
+        if (!subCategory) {
+            throw CustomError.notFound('Subcategoria no encontrada');
+        }
+    }
 }

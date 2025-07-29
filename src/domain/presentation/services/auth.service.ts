@@ -18,7 +18,7 @@ export class AuthService {
 
     public async registerUser(registerUserDto: RegisterUserDto) {
 
-        const emailAddresses = registerUserDto.email.map(e => e.emailAddres.toLowerCase().trim());
+        const emailAddresses = registerUserDto.email.map(e => e.EmailAddres.toLowerCase().trim());
 
         const existUser = await UserModel.findOne({
             'email.EmailAddres': { $in: emailAddresses }
@@ -130,13 +130,13 @@ export class AuthService {
             name: dto.name,
             lastName: dto.lastName,
             email: dto.email.map(e => ({
-                EmailAddres: e.emailAddres,
-                IsPrincipal: e.isPrincipal,
+                EmailAddres: e.EmailAddres,
+                IsPrincipal: e.IsPrincipal,
             })),
             phone: dto.phone.map(p => ({
-                NumberPhone: p.numberPhone,
-                IsPrincipal: p.isPrincipal,
-                Indicative: p.indicative,
+                NumberPhone: p.NumberPhone,
+                IsPrincipal: p.IsPrincipal,
+                Indicative: p.Indicative,
             })),
             addres: dto.address,
             city: new mongoose.Types.ObjectId(dto.city),

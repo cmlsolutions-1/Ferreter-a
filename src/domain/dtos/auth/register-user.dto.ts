@@ -66,7 +66,7 @@ export class RegisterUserDto {
     let hasPrincipalPhone = false;
     for (const p of phone) {
       if (!p.NumberPhone) return ["El telefono es requerido"];
-      if (typeof p.isPrincipal !== "boolean") return ["el campo IsPrincipal debe ser de tipo bool"];
+      if (typeof p.IsPrincipal !== "boolean") return ["el campo IsPrincipal debe ser de tipo bool"];
       if (!p.Indicative) return ["El indicativo es requerido"];
       if (p.IsPrincipal) hasPrincipalPhone = true;
     }

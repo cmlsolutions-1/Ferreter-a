@@ -7,16 +7,23 @@ import { GetProductByIdDto } from '../../dtos/product/get-by-id-product';
 import { ListProductByCategoryDto } from '../../dtos/product/list-producto-category.dto';
 import { FilterProductDto } from '../../dtos/product/filter-product.dto';
 import mongoose from 'mongoose';
+import { CategoryService } from './category.service';
 
 
 export class ProductService {
 
-
+    public constructor(
+        private readonly categoryService: CategoryService
+    ) 
+    {   
+    }
 
     public async createProduct(dto: CreateProductDto) {
 
         const existProduct = await ProductModel.findOne({ reference: dto.reference });
         if (existProduct) throw CustomError.badRequest('Ya existe un producto con esta referencia');
+
+        await this.categoryService.validateSubCategoryExists(dto.subCategory);
 
         try {
             const newProduct = new ProductModel({
@@ -29,6 +36,7 @@ export class ProductService {
                 prices: dto.prices,
                 package: dto.packagee ?? [],
                 stock: dto.stock ?? [],
+                subCategory: new mongoose.Types.ObjectId(dto.subCategory),
             });
 
             await newProduct.save();

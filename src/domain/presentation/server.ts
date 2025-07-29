@@ -2,6 +2,7 @@ import express, { Router } from 'express';
 import cors from 'cors';
 // import compression from 'compression';
 import path from 'path';
+import { errorHandler } from './middlewares/errorHandler';
 
 interface Options {
   port: number;
@@ -41,6 +42,8 @@ export class Server {
 
     //* Routes
     this.app.use( this.routes );
+
+    this.app.use(errorHandler);
 
 
     //* SPA

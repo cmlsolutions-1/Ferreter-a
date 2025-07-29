@@ -1,14 +1,14 @@
 import { regularExps } from "../../../config";
 
 interface PhoneDto {
-  numberPhone: string;
-  isPrincipal: boolean;
-  indicative: string;
+  NumberPhone: string;
+  IsPrincipal: boolean;
+  Indicative: string;
 }
 
 interface EmailDto {
-  emailAddress: string;
-  isPrincipal: boolean;
+  EmailAddress: string;
+  IsPrincipal: boolean;
 }
 
 enum Role {

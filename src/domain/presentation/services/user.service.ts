@@ -31,16 +31,16 @@ export class UserService {
             if (dto.email) {
                 console.log('Updating user email:', dto.email);
                 user.set('email', dto.email.map(e => ({
-                    EmailAddres: e.emailAddress,
-                    IsPrincipal: e.isPrincipal,
+                    EmailAddres: e.EmailAddress,
+                    IsPrincipal: e.IsPrincipal,
                 })));
             }
 
             if (dto.phone) {
                 user.set('phone', dto.phone.map(p => ({
-                    NumberPhone: p.numberPhone,
-                    IsPrincipal: p.isPrincipal,
-                    Indicative: p.indicative,
+                    NumberPhone: p.NumberPhone,
+                    IsPrincipal: p.IsPrincipal,
+                    Indicative: p.Indicative,
                 })));
             }
 
