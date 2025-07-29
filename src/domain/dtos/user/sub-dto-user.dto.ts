@@ -1,7 +1,7 @@
 export class UserEmailDto {
   constructor(
-    public emailAddress: string,
-    public isPrincipal: boolean,
+    public EmailAddress: string,
+    public IsPrincipal: boolean,
   ) {}
 
   static fromModel(model: any): UserEmailDto {
@@ -15,9 +15,9 @@ export class UserEmailDto {
 
 export class UserPhoneDto {
   constructor(
-    public numberPhone: string,
-    public indicative: string,
-    public isPrincipal: boolean,
+    public NumberPhone: string,
+    public Indicative: string,
+    public IsPrincipal: boolean,
   ) {}
 
   static fromModel(model: any): UserPhoneDto {

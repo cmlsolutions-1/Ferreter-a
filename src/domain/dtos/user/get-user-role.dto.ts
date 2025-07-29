@@ -3,7 +3,7 @@ import { UserPhoneDto } from "./sub-dto-user.dto";
 
 export class ViewUserDto {
   constructor(
-    public _id: string, // Cambiado de id a _id para seguir la convención de Mongoose
+    public _id: string, 
     public id: string,
     public name: string,
     public lastName: string,
@@ -13,7 +13,7 @@ export class ViewUserDto {
     public role: 'Admin' | 'SalesPerson' | 'Client',
     public state: 'Active' | 'Inactive',
     public address: string[],
-    public extra: any = null // campo flexible que cambia según el rol
+    public extra: any = null 
   ) {}
 
   static fromModel(model: any): ViewUserDto {
