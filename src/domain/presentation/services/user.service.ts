@@ -13,7 +13,7 @@ export class UserService {
     public async updateUser(dto: UpdateUserDto) {
 
         try {
-            const user = await UserModel.findOne({ _id: dto._id });
+            const user = await UserModel.findOne({ _id: dto._id, state: "Active" });
             if (!user) throw CustomError.notFound('Usuario no encontrado');
 
 
