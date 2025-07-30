@@ -12,7 +12,7 @@ export class UserRoutes {
     const userService = new UserService();
     const userController = new UserController(userService);
     router.put('/', userController.updateUser);
-    router.post('/delete', userController.deleteUser); 
+    router.delete('/:_id', userController.deleteUser); 
     router.get('/getById/:id', userController.getUserById); 
     router.get('/', userController.getAllUsers );
     router.get('/salesPerson', userController.getSalesPersons);

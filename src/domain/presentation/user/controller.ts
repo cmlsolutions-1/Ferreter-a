@@ -20,7 +20,9 @@ export class UserController {
 
   deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const [err, dto] = DeleteUserDto.create(req.body);
+
+      const { _id } = req.params;
+      const [err, dto] = DeleteUserDto.create( { _id });
       if (err) return res.status(400).json({ error: true, message: err });
 
       const result = await this.userService.deleteUser(dto!);

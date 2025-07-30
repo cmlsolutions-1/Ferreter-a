@@ -5,19 +5,14 @@ export enum UserState {
 
 export class DeleteUserDto {
   private constructor(
-    public _id: string,
-    public state: UserState,
+    public _id: string
   ) {}
 
   static create(object: { [key: string]: any }): [string?, DeleteUserDto?] {
-    const { id, state } = object;
+    const { _id } = object;
 
-    if (!id) return ["El ID es obligatorio para eliminar o desactivar al usuario"];
-    if (!state) return ["El estado es obligatorio"];
-    if (!Object.values(UserState).includes(state)) {
-      return ["El estado debe ser 'Active' o 'Inactive'"];
-    }
+    if (!_id) return ["El ID es obligatorio para eliminar o desactivar al usuario"];
 
-    return [undefined, new DeleteUserDto(id, state)];
+    return [undefined, new DeleteUserDto(_id)];
   }
 }

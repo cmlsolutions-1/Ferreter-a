@@ -65,18 +65,18 @@ export class UserService {
         const user = await UserModel.findOne({ _id: dto._id });
         if (!user) throw CustomError.notFound('Usuario no encontrado');
 
-        user.state = dto.state;
+        user.state = "Inactive";
 
         await user.save();
 
         return {
-            message: `Usuario actualizado a estado ${dto.state}`,
-            userId: user.id,
+            message: `Usuario Eliminado correctamente`,
+            userId: user._id,
         };
     }
 
     public async getUserById(userId: string): Promise<GetUserByIdDto> {
-        const user = await UserModel.findOne({ _id: userId })
+        const user = await UserModel.findOne({ _id: userId, state: "Active" })
             // .populate('city', '_id')
             .populate('salesPerson', '_id')
             .populate('clients', '_id')
@@ -89,14 +89,14 @@ export class UserService {
 
     public async getAllUsers(): Promise<ListUserDto[]> {
         // const users = await UserModel.find().populate('city', '_id');
-        const users = await UserModel.find();
+        const users = await UserModel.find({ state: "Active" });
 
         return ListUserDto.fromModelArray(users);
     }
 
     public async getClientsBySalesPersonId(salesPersonId: string): Promise<GetClientsBySalesPersonDto[]> {
 
-        const seller = await UserModel.findOne({ _id: salesPersonId, role: 'SalesPerson' });
+        const seller = await UserModel.findOne({ _id: salesPersonId, role: 'SalesPerson',  state: "Active" });
         if (!seller) throw CustomError.notFound('Vendedor no encontrado');
 
         const clients = await UserModel.find({ salesPerson: seller._id, role: 'Client' });
@@ -105,16 +105,17 @@ export class UserService {
     }
 
     public async getUserRole(userId: string): Promise<string> {
-        const user = await UserModel.findOne({ _id: userId });
+        const user = await UserModel.findOne({ _id: userId, state: "Active" });
         if (!user) throw CustomError.notFound('Usuario no encontrado');
 
         return user.role;
 
-    } public async getUsersByRole(role: string): Promise<ViewUserDto[]> {
+    } 
+    public async getUsersByRole(role: string): Promise<ViewUserDto[]> {
         try {
             // const users = await UserModel.find({ role }).populate('city', '_id');
             console.log(role);
-            const users = await UserModel.find({ role });
+            const users = await UserModel.find({ role , state: "Active" });
             return ViewUserDto.fromModelArray(users);
         } catch (error) {
             throw CustomError.internalServer(`Error al obtener usuarios por rol: ${error}`);
