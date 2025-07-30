@@ -43,8 +43,8 @@ export class ProductController {
 
   getProductById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { reference } = req.params;
-      const product = await this.productService.getProductById(reference);
+      const { _id } = req.params;
+      const product = await this.productService.getProductById(_id);
       return res.status(200).json(product);
     } catch (error) {
       next(error);

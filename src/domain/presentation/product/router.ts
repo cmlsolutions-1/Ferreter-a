@@ -16,7 +16,7 @@ export class ProductRoutes {
     router.put('/:reference', productController.updateProduct);
     router.get('/', productController.listProducts);
     router.get('/filter', productController.filterProducts);
-    router.get('/:reference', productController.getProductById);
+    router.get('/:_id', productController.getProductById);
     router.get('/category/:categoryId', productController.getProductsByCategory);
 
     return router;

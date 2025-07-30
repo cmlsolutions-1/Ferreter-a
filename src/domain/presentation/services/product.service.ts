@@ -97,9 +97,9 @@ export class ProductService {
 
     public async listProducts(): Promise<ListProductDto[]> {
         try {
-            const products = await ProductModel.find({}, 'reference code title category image')
-                .populate('subCategory', '_id') // Asegura que sea un ObjectId
-                .populate('image', '_id');
+            const products = await ProductModel.find({}, '_id reference description code title subCategory image')
+                // .populate('subCategory', '_id') // Asegura que sea un ObjectId
+                // .populate('image', '_id');
 
             return ListProductDto.fromModelArray(products);
         } catch (error) {
@@ -107,11 +107,11 @@ export class ProductService {
         }
     }
 
-    public async getProductById(reference: string): Promise<GetProductByIdDto> {
+    public async getProductById(_id: string): Promise<GetProductByIdDto> {
         try {
-            const product = await ProductModel.findOne({ reference })
-                .populate('subCategory', '_id')
-                .populate('image', '_id');
+            const product = await ProductModel.findOne({ _id })
+                // .populate('subCategory', '_id')
+                // .populate('image', '_id');
 
             if (!product) throw CustomError.notFound('Producto no encontrado');
 
@@ -148,7 +148,7 @@ export class ProductService {
             query.title = { $regex: dto.title.trim(), $options: 'i' };
         }
 
-        const products = await ProductModel.find(query).populate('image').populate('category');
+        const products = await ProductModel.find(query);
 
         return ListProductDto.fromModelArray(products);
     }

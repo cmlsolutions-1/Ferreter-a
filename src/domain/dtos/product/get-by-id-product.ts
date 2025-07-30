@@ -4,6 +4,7 @@ import { ProductStockDto } from "./sub-dto-anidados";
 
 export class GetProductByIdDto {
   constructor(
+    public _id: string,
     public reference: string,
     public code: string,
     public title: string,
@@ -17,12 +18,13 @@ export class GetProductByIdDto {
 
   static fromModel(model: any): GetProductByIdDto {
     return new GetProductByIdDto(
+      model._id.toString(),
       model.reference,
       model.code,
       model.title,
       model.description,
       model.image?._id?.toString() ?? model.image?.toString() ?? '',
-      model.category?._id?.toString() ?? model.category?.toString() ?? '',
+      model.subCategory?._id?.toString() ?? model.subCategory?.toString() ?? '',
       ProductPriceDto.fromModelArray(model.prices || []),
       ProductPackageDto.fromModelArray(model.package || []),
       ProductStockDto.fromModelArray(model.stock || []),
