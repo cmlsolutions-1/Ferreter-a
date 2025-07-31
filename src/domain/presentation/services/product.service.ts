@@ -123,8 +123,8 @@ export class ProductService {
 
     public async getProductsByCategory(categoryId: string): Promise<ListProductByCategoryDto[]> {
         try {
-            const products = await ProductModel.find({ category: categoryId })
-                .populate('image', '_id');
+            const products = await ProductModel.find({ subCategory: categoryId })
+                // .populate('image', '_id');
 
             if (!products || products.length === 0) {
                 throw CustomError.notFound('No se encontraron productos para esta categoría');
@@ -144,10 +144,8 @@ export class ProductService {
         }
 
         if (dto.title) {
-            
             query.title = { $regex: dto.title.trim(), $options: 'i' };
         }
-
         const products = await ProductModel.find(query);
 
         return ListProductDto.fromModelArray(products);
