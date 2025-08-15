@@ -44,7 +44,7 @@ export class OrderService {
 
             await OrderItemModel.insertMany(orderItemDocs);
         } catch (error) {
-            throw CustomError.internalServer(`Error al crear la oferta: ${error}`);
+            throw CustomError.internalServer(`Error al crear la orden: ${error}`);
         }
     }
 
@@ -54,7 +54,6 @@ export class OrderService {
         let tax = 0;
         let total = 0;
         for (const item of orderItems) {
-
             const prices = await this.productService.getPriceByCategory(item.idProduct, priceCategoryId);
             if (!prices) throw CustomError.notFound('No se encontraron precios para el producto');
             total += prices * item.quantity;

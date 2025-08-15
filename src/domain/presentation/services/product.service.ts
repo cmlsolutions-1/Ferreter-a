@@ -164,9 +164,12 @@ export class ProductService {
         if (!product) {
             throw CustomError.notFound('Producto no encontrado');
         }
+        console.log('Product:', product);
+        console.log('Price Category ID:', priceCategoryId);
         const priceObj = product.prices.find(
-            p => p.PriceCategory.toString() === priceCategoryId
+            p => p.PriceCategory.toString() == priceCategoryId
         );
+        console.log(priceObj);
         return priceObj ? priceObj.PosValue : null;
     }
 }

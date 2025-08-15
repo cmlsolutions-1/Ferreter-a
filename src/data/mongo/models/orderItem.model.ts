@@ -2,12 +2,6 @@ import mongoose, { Schema } from 'mongoose';
 
 
 const orderItemSchema = new mongoose.Schema({
-
-    // id: {
-    //     type: String,
-    //     required: [true, 'Id is required'],
-    //     unique: true
-    // },
     quantity: {
         type: Number,
     },

@@ -7,7 +7,7 @@ interface PhoneDto {
 }
 
 interface EmailDto {
-  EmailAddress: string;
+  EmailAddres: string;
   IsPrincipal: boolean;
 }
 
@@ -28,7 +28,7 @@ export class UpdateUserDto {
     public address?: string[],
     public city?: string,
     public priceCategory?: string,
-    public idSalesPerson?: string,
+    public salesPerson?: string,
   ) {}
 
   static create(object: { [key: string]: any }): [string?, UpdateUserDto?] {
@@ -43,7 +43,7 @@ export class UpdateUserDto {
       city,
       role,
       priceCategory,
-      idSalesPerson,
+      salesPerson,
     } = object;
 
     if (!_id) return ["El ID es obligatorio para actualizar el usuario"];
@@ -52,7 +52,7 @@ export class UpdateUserDto {
       if (!Array.isArray(email) || email.length === 0) return ["El campo email debe ser una lista"];
       let isPrincipal = false;
       for (const e of email) {
-        if (!e.EmailAddress || !regularExps.email.test(e.EmailAddress)) return [`El correo no es válido: ${e.EmailAddress}`];
+        if (!e.EmailAddres || !regularExps.email.test(e.EmailAddres)) return [`El correo no es válido: ${e.EmailAddres}`];
         if (typeof e.IsPrincipal !== "boolean") return ["El campo IsPrincipal en email debe ser booleano"];
         if (e.IsPrincipal) isPrincipal = true;
       }
@@ -85,7 +85,7 @@ export class UpdateUserDto {
         address,
         city,
         priceCategory,
-        idSalesPerson
+        salesPerson
       ),
     ];
   }

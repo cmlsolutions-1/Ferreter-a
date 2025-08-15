@@ -18,10 +18,10 @@ export class UserService {
 
 
             if (user.role === 'Client') {
-                const salesPerson = await UserModel.findOne({ _id: dto.idSalesPerson });
+                const salesPerson = await UserModel.findOne({ _id: dto.salesPerson });
                 if (!salesPerson) throw CustomError.notFound('Vendedor no encontrado');
                 if (salesPerson.role !== 'SalesPerson') throw CustomError.badRequest('El usuario no es un vendedor');
-                user.salesPerson = new mongoose.Types.ObjectId(dto.idSalesPerson);
+                user.salesPerson = new mongoose.Types.ObjectId(dto.salesPerson);
 
             }
 
@@ -31,7 +31,7 @@ export class UserService {
             if (dto.email) {
                 console.log('Updating user email:', dto.email);
                 user.set('email', dto.email.map(e => ({
-                    EmailAddres: e.EmailAddress,
+                    EmailAddres: e.EmailAddres,
                     IsPrincipal: e.IsPrincipal,
                 })));
             }
