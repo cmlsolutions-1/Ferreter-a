@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { ProductController } from './controller';
 import { ProductService } from '../services/product.service';
 import { CategoryService } from '../services/category.service';
+import { PriceCategoryService } from '../services/price.category.service';
 
 
 export class ProductRoutes {
@@ -9,7 +10,8 @@ export class ProductRoutes {
   static get routes(): Router {
     const router = Router();
     const subCategoryService = new CategoryService();
-    const productService = new ProductService(subCategoryService);
+    const priceCategoryService = new PriceCategoryService();
+    const productService = new ProductService(subCategoryService, priceCategoryService);
     const productController = new ProductController(productService);
 
     router.post('/', productController.createProduct);

@@ -15,10 +15,10 @@ const packageSchema = new Schema({
     Mount: { type: Number, required: true },
 }, { _id: false });
 
-const stockSchema = new Schema({
-    Store: { type: String, required: true },
-    Mount: { type: Number, required: true },
-}, { _id: false });
+// const stockSchema = new Schema({
+//     Store: { type: String, required: true },
+//     Mount: { type: Number, required: true },
+// }, { _id: false });
 
 const productSchema = new mongoose.Schema({
 
@@ -30,10 +30,6 @@ const productSchema = new mongoose.Schema({
     code: {
         type: String,
         required: [true, 'Code is required'],
-    },
-    title: {
-        type: String,
-        required: [true, 'Title is required']
     },
     description: {
         type: String,
@@ -55,7 +51,7 @@ const productSchema = new mongoose.Schema({
         type: [packageSchema]
     },
     stock : {
-        type: [stockSchema]
+        type: Number
     }
 
 });

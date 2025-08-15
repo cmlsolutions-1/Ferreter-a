@@ -5,6 +5,7 @@ import { LoginUserDto } from '../../dtos/auth/login-user.dto';
 import { RegisterUserDto } from '../../dtos/auth/register-user.dto';
 import { EmailService } from './email.service';
 import mongoose from 'mongoose';
+import { PriceCategoryService } from './price.category.service';
 
 
 
@@ -13,6 +14,7 @@ export class AuthService {
 
     constructor(
         private readonly emailService: EmailService,
+        private readonly priceCategoryService: PriceCategoryService
     ) { }
 
 
@@ -23,7 +25,18 @@ export class AuthService {
         const existUser = await UserModel.findOne({
             'email.EmailAddres': { $in: emailAddresses }
         });
-        if (existUser) throw CustomError.badRequest('Email already exist');
+
+        if (existUser) throw CustomError.badRequest('Email ya existe');
+
+        if (registerUserDto.role === 'Client'){
+            await this.priceCategoryService.getPriceCategoryById(registerUserDto.priceCategory);
+            const existeSalesPerson = await UserModel.findById(registerUserDto.salesPerson);
+            if (!existeSalesPerson) throw CustomError.notFound('Vendedor no encontrado');
+        }
+        else{
+            registerUserDto.salesPerson = undefined;
+            registerUserDto.priceCategory = undefined;
+        }
 
         try {
             const userModelData = this.registerUserDtoToModel(registerUserDto);
@@ -38,7 +51,7 @@ export class AuthService {
             await this.sendEmailValidationLink(principalEmail!);
 
             const token = await JwtAdapter.generateToken({ id: user.id });
-            if (!token) throw CustomError.internalServer('Error while creating JWT');
+            if (!token) throw CustomError.internalServer('Error Mientras se crea el JWT');
 
             return {
                 user: user,
@@ -142,9 +155,9 @@ export class AuthService {
             city: new mongoose.Types.ObjectId(dto.city),
             password: dto.password,
             role: dto.role,
-            priceCategory: new mongoose.Types.ObjectId(dto.priceCategory),
+            priceCategory: dto.priceCategory ? new mongoose.Types.ObjectId(dto.priceCategory): undefined,
             salesPerson: dto.salesPerson ? new mongoose.Types.ObjectId(dto.salesPerson) : undefined,
-            clients: dto.clients?.map(c => new mongoose.Types.ObjectId(c)) ?? [],
+            // clients: dto.clients?.map(c => new mongoose.Types.ObjectId(c)) ?? [],
         };
     }
 

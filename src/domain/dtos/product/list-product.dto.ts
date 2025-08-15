@@ -1,12 +1,11 @@
 export class ListProductDto {
   constructor(
     public _id: string,
-    public reference: string,
-    public code: string,
-    public title: string,
-    public description: string,
-    public categoryId: string,
-    public imageId: string,
+    public referencia: string,
+    public codigo: string,
+    public detalle: string,
+    public subgategoryId: string,
+    public image: string,
   ) {}
 
   static fromModel(model: any): ListProductDto {
@@ -14,7 +13,6 @@ export class ListProductDto {
       model._id.toString(),
       model.reference,
       model.code,
-      model.title,
       model.description,
       model.subCategory?.toString() ?? '',
       model.image?.toString() ?? '',

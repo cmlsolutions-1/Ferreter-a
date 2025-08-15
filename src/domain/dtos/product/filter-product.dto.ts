@@ -1,13 +1,13 @@
 export class FilterProductDto {
   private constructor(
     public reference?: string,
-    public title?: string
+    public description?: string
   ) {}
 
   static create(object: { [key: string]: any }): [string?, FilterProductDto?] {
-    const { reference, title } = object;
+    const { reference, description } = object;
 
-    if (!reference && !title) {
+    if (!reference && !description) {
       return ['Debe proporcionar al menos el "reference" o el "title" para filtrar'];
     }
 
@@ -15,10 +15,10 @@ export class FilterProductDto {
       return ['El campo "reference" debe ser una cadena'];
     }
 
-    if (title && typeof title !== 'string') {
+    if (description && typeof description !== 'string') {
       return ['El campo "title" debe ser una cadena'];
     }
 
-    return [undefined, new FilterProductDto(reference, title)];
+    return [undefined, new FilterProductDto(reference, description)];
   }
 }

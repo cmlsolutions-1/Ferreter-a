@@ -28,9 +28,9 @@ export class RegisterUserDto {
     public city: string,
     public password: string,
     public role: Role,
-    public priceCategory: string,
+    public priceCategory?: string,
     public salesPerson?: string,
-    public clients?: string[],
+    // public clients?: string[],
   ) {}
 
   static create(object: { [key: string]: any }): [string?, RegisterUserDto?] {
@@ -46,7 +46,7 @@ export class RegisterUserDto {
       role,
       priceCategory,
       salesPerson,
-      clients,
+      // clients,
     } = object;
 
     if (!id) return ["campo id faltante"];
@@ -76,7 +76,7 @@ export class RegisterUserDto {
     if (!city) return ["city is required"];
     if (!password || password.length < 6) return ["El password debe ser de almenos 6 caracters"];
     if (!role || !Object.values(Role).includes(role)) return [`Campo de role invalido: ${role}`];
-    if (!priceCategory) return ["la categoria de precio es requerida"];
+    if (role == Role.Client && !priceCategory) return ["la categoria de precio es requerida"];
 
     return [
       undefined,
@@ -92,7 +92,7 @@ export class RegisterUserDto {
         role,
         priceCategory,
         salesPerson,
-        clients,
+        // clients,
       ),
     ];
   }

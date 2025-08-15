@@ -5,102 +5,123 @@ import { CustomError } from '../../errors/custom.errors';
 import { UpdateOrderDto } from '../../dtos/order/update-order.dto';
 import { UpdateOrderPaidDto } from '../../dtos/order/Update-order-paid.dto';
 import mongoose from 'mongoose';
-import { GetOrderByIdDto } from '../../dtos/order/get-order-by-id.dto';
+import { UserService } from './user.service';
+import { ProductService } from './product.service';
+import { GetOrderBySalesPersonDto } from '../../dtos/order/get-order-by-salesPerson.dto';
+import { GetOrderByClientDto } from '../../dtos/order/get-order-by-client.dto';
+
 
 export class OrderService {
-    
+
+    public constructor(
+        private readonly userService: UserService,
+        private readonly productService: ProductService,
+    ) {
+    }
+
     public async createOrder(dto: CreateOrderDto): Promise<void> {
-        const session = await mongoose.startSession();
-        session.startTransaction();
+        const priceCategoryId = await this.userService.getPriceCategoryIdByClientId(dto.idClient);
+        const { subTotal, tax, total } = await this.getMoneyValues(priceCategoryId!, dto.orderItems);
+        const idSalesPerson = await this.userService.getSalesPersonIdByClientId(dto.idClient);
 
         try {
-
-            await OrderModel.create([{
-                id: dto.id,
-                subTotal: dto.subTotal,
-                tax: dto.tax,
-                total: dto.total,
-                isPaid: dto.isPaid ?? false,
-                paymendDate: dto.paymendDate,
+            const order = await OrderModel.create({
+                subTotal,
+                tax,
+                total,
                 createdDate: new Date(),
                 idClient: dto.idClient,
-                idSalesPerson: dto.idSalesPerson,
-            }], { session });
-
+                idSalesPerson: idSalesPerson,
+            });
 
             const orderItemDocs = dto.orderItems.map(item => ({
-                id: item.id,
                 quantity: item.quantity,
                 price: item.price,
                 idProduct: item.idProduct,
-                idOrder: dto.id,
+                idOrder: order._id
             }));
 
-            await OrderItemModel.insertMany(orderItemDocs, { session });
-
-
-            await session.commitTransaction();
+            await OrderItemModel.insertMany(orderItemDocs);
         } catch (error) {
-            await session.abortTransaction();
             throw CustomError.internalServer(`Error al crear la oferta: ${error}`);
-        } finally {
-            session.endSession();
         }
     }
 
-    public async updateOrder(dto: UpdateOrderDto): Promise<void> {
-        if (!dto.id) throw CustomError.badRequest('ID de orden es requerido para actualizar');
 
-        const session = await mongoose.startSession();
-        session.startTransaction();
+    private async getMoneyValues(priceCategoryId: string, orderItems: any[]): Promise<{ subTotal: number, tax: number, total: string }> {
+        let subTotal = 0;
+        let tax = 0;
+        let total = 0;
+        for (const item of orderItems) {
 
-        try {
-            // 1. Buscar y actualizar la orden
-            const order = await OrderModel.findOne({ id: dto.id }).session(session);
-            if (!order) throw CustomError.badRequest('Orden no encontrada');
-
-            if (dto.subTotal !== undefined) order.subTotal = dto.subTotal;
-            if (dto.tax !== undefined) order.tax = dto.tax;
-            if (dto.total !== undefined) order.total = dto.total;
-            if (dto.idClient !== undefined) order.idClient = new mongoose.Types.ObjectId(dto.idClient);
-            if (dto.idSalesPerson !== undefined) order.idSalesPerson = new mongoose.Types.ObjectId(dto.idSalesPerson);
-            if (dto.updatedDate) order.updatedDate = dto.updatedDate;
-
-            await order.save({ session });
-            if (dto.items && dto.items.length > 0) {
-                for (const item of dto.items) {
-                    const orderItem = await OrderItemModel.findOne({ id: item.id }).session(session);
-                    if (!orderItem) {
-                        throw CustomError.internalServer(`Item con id ${item.id} no encontrado`);
-                    }
-
-                    if (item.quantity !== undefined) orderItem.quantity = item.quantity;
-                    if (item.price !== undefined) orderItem.price = item.price;
-                    if (item.idProduct !== undefined) orderItem.idProduct = new mongoose.Types.ObjectId(item.idProduct);
-
-                    await orderItem.save({ session });
-                }
-            }
-
-            await session.commitTransaction();
-        } catch (error) {
-            await session.abortTransaction();
-            throw CustomError.internalServer('Error al actualizar la orden ${error}');
-        } finally {
-            session.endSession();
+            const prices = await this.productService.getPriceByCategory(item.idProduct, priceCategoryId);
+            if (!prices) throw CustomError.notFound('No se encontraron precios para el producto');
+            total += prices * item.quantity;
+            tax += prices * item.quantity * 0.19;
+            subTotal += (total - tax);
+            item.price = prices;
         }
+        return {
+            subTotal,
+            tax,
+            total: (subTotal + tax).toFixed(2),
+        };
     }
+
+
+    // public async updateOrder(dto: UpdateOrderDto): Promise<void> {
+    //     if (!dto.id) throw CustomError.badRequest('ID de orden es requerido para actualizar');
+
+    //     const session = await mongoose.startSession();
+    //     session.startTransaction();
+
+    //     try {
+    //         // 1. Buscar y actualizar la orden
+    //         const order = await OrderModel.findOne({ id: dto.id }).session(session);
+    //         if (!order) throw CustomError.badRequest('Orden no encontrada');
+
+    //         if (dto.subTotal !== undefined) order.subTotal = dto.subTotal;
+    //         if (dto.tax !== undefined) order.tax = dto.tax;
+    //         if (dto.total !== undefined) order.total = dto.total;
+    //         if (dto.idClient !== undefined) order.idClient = new mongoose.Types.ObjectId(dto.idClient);
+    //         if (dto.idSalesPerson !== undefined) order.idSalesPerson = new mongoose.Types.ObjectId(dto.idSalesPerson);
+    //         if (dto.updatedDate) order.updatedDate = dto.updatedDate;
+
+    //         await order.save({ session });
+    //         if (dto.items && dto.items.length > 0) {
+    //             for (const item of dto.items) {
+    //                 const orderItem = await OrderItemModel.findOne({ id: item.id }).session(session);
+    //                 if (!orderItem) {
+    //                     throw CustomError.internalServer(`Item con id ${item.id} no encontrado`);
+    //                 }
+
+    //                 if (item.quantity !== undefined) orderItem.quantity = item.quantity;
+    //                 if (item.price !== undefined) orderItem.price = item.price;
+    //                 if (item.idProduct !== undefined) orderItem.idProduct = new mongoose.Types.ObjectId(item.idProduct);
+
+    //                 await orderItem.save({ session });
+    //             }
+    //         }
+
+    //         await session.commitTransaction();
+    //     } catch (error) {
+    //         await session.abortTransaction();
+    //         throw CustomError.internalServer('Error al actualizar la orden ${error}');
+    //     } finally {
+    //         session.endSession();
+    //     }
+    // }
 
     public async setOrderAsPaid(dto: UpdateOrderPaidDto): Promise<void> {
         const session = await mongoose.startSession();
         session.startTransaction();
 
         try {
-            const order = await OrderModel.findOne({ id: dto.id }).session(session);
+            const order = await OrderModel.findOne({ _id: dto._id }).session(session);
             if (!order) throw CustomError.notFound('Orden no encontrada');
 
-            order.isPaid = dto.isPaid;
-            order.paymendDate = dto.paymentDate ?? new Date();
+            order.isPaid = true;
+            order.paymendDate = new Date();
             order.updatedDate = new Date();
 
             await order.save({ session });
@@ -114,14 +135,32 @@ export class OrderService {
         }
     }
 
-    public async getOrderById(id: string): Promise<any> {
+    public async getOrderBySalesPerson(idSalesPerson: string): Promise<any> {
 
-        const order = await OrderModel.findOne({ id }).lean();
-        if (!order) throw CustomError.notFound('Order not found');
+        const order = await OrderModel.findOne({ idSalesPerson })
+            .populate('idClient', 'name lastName id')
+            .lean();
+        if (!order) throw CustomError.notFound('Este vendedor no tiene ordenes');
 
-        const items = await OrderItemModel.find({ idOrder: order._id }).lean();
+        const items = await OrderItemModel.find({ idOrder: order._id })
+            .populate('idProduct', 'reference description')
+            .lean();
 
-        const dto = GetOrderByIdDto.fromModel(order, items);
+        const dto = GetOrderBySalesPersonDto.fromModel(order, items);
+        return dto;
+    }
+
+    public async getOrderByClient(idClient: string): Promise<any> {
+
+        const order = await OrderModel.findOne({ idClient })
+
+        if (!order) throw CustomError.notFound('Este cliente no tiene ordenes');
+
+        const items = await OrderItemModel.find({ idOrder: order._id })
+            .populate('idProduct', 'reference description')
+            .lean();
+
+        const dto = GetOrderByClientDto.fromModel(order, items);
         return dto;
     }
 }

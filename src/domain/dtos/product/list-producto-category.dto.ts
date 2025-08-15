@@ -1,8 +1,7 @@
 export class ListProductByCategoryDto {
   constructor(
-    public reference: string,
-    public code: string,
-    public title: string,
+    public referencia: string,
+    public codigo: string,
     public description: string,
     public imageId: string,
   ) {}
@@ -11,7 +10,6 @@ export class ListProductByCategoryDto {
     return new ListProductByCategoryDto(
       model.reference,
       model.code,
-      model.title,
       model.description,
       model.image?._id?.toString() ?? model.image?.toString() ?? ''
     );

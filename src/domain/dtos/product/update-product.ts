@@ -1,7 +1,7 @@
 export interface PriceDto {
-  PriceCategory: string; // ObjectId de PriceCategory
-  Value: number;
-  PosValue: number;
+  precio: string;
+  valor: number;
+  valorpos: number;
 }
 
 export interface PackageDto {
@@ -9,36 +9,25 @@ export interface PackageDto {
   Mount: number;
 }
 
-export interface StockDto {
-  Store: string;
-  Mount: number;
-}
-
 export class UpdateProductDto {
   private constructor(
     public code?: string,
-    public title?: string,
     public description?: string,
     public image?: string,
     public category?: string,
     public prices?: PriceDto[],
     public packagee?: PackageDto[],
-    public stock?: StockDto[],
-  ) {}
+  ) { }
 
   static create(object: { [key: string]: any }): [string?, UpdateProductDto?] {
-    const { code, title, description, image, category, prices, package: pkg, stock } = object;
+    const { codigo, detalle, image, subCategory, precios, package: pkg } = object;
 
-    // if (!reference && !code && !title && !description && !image && !category && !prices && !pkg && !stock) {
-    //   return ['Debe proporcionar al menos un campo para actualizar'];
-    // }
-
-    if (prices) {
-      if (!Array.isArray(prices)) return ['El campo prices debe ser un arreglo'];
-      for (const price of prices) {
-        if (!price.PriceCategory) return ['PriceCategory es obligatorio en cada precio'];
-        if (typeof price.Value !== 'number') return ['Value debe ser un número en cada precio'];
-        if (typeof price.PosValue !== 'number') return ['PosValue debe ser un número en cada precio'];
+    if (precios) {
+      if (!Array.isArray(precios)) return ['El campo precio debe ser un arreglo'];
+      for (const price of precios) {
+        if (!price.precio) return ['la categoría de precio es obligatorio en cada precio'];
+        if (typeof price.valor !== 'number') return ['Value debe ser un número'];
+        if (typeof price.valorpos !== 'number') return ['PosValue debe ser un número'];
       }
     }
 
@@ -50,14 +39,6 @@ export class UpdateProductDto {
       }
     }
 
-    if (stock) {
-      if (!Array.isArray(stock)) return ['El campo stock debe ser un arreglo'];
-      for (const s of stock) {
-        if (!s.Store) return ['Store es obligatorio en cada stock'];
-        if (typeof s.Mount !== 'number') return ['Mount debe ser un número en cada stock'];
-      }
-    }
-
-    return [undefined, new UpdateProductDto(code,title, description, image, category, prices, pkg, stock)];
+    return [undefined, new UpdateProductDto(codigo, detalle, image, subCategory, precios, pkg)];
   }
 }

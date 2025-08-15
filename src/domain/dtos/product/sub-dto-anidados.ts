@@ -1,13 +1,13 @@
 export class ProductPriceDto {
   constructor(
-    public priceCategoryId: string,
-    public value: number,
-    public posValue: number,
+    public precio: string,
+    public valor: number,
+    public valorpos: number,
   ) {}
 
   static fromModel(model: any): ProductPriceDto {
     return new ProductPriceDto(
-      model.PriceCategory?.toString() ?? '',
+      model.PriceCategory?.code || '',
       model.Value,
       model.PosValue,
     );

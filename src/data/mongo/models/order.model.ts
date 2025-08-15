@@ -3,11 +3,6 @@ import mongoose, { Schema } from 'mongoose';
 
 const orderSchema = new mongoose.Schema({
 
-    id: {
-        type: String,
-        required: [true, 'Id is required'],
-        unique: true,
-    },
     subTotal: {
         type: Number,
     },
@@ -15,7 +10,7 @@ const orderSchema = new mongoose.Schema({
         type: Number,
     },
     total: {
-        type: String,
+        type: Number,
     },
     isPaid: {
         type: Boolean

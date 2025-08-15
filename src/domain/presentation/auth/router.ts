@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { AuthService } from '../services/auth.service';
 import { EmailService } from '../services/email.service';
 import { AuthController } from './controller';
+import { PriceCategoryService } from '../services/price.category.service';
 
 
 export class AuthRoutes {
@@ -15,7 +16,8 @@ export class AuthRoutes {
             process.env.SENDER_EMAIL_PASSWORD!,
             process.env.SEND_EMAIL !== 'true' ? true : false,
         );
-        const authService = new AuthService(emailService);
+        const priceCategoryService = new PriceCategoryService();
+        const authService = new AuthService(emailService, priceCategoryService);
         const authController = new AuthController(authService);
 
         router.post('/register', authController.register);

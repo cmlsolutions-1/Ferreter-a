@@ -17,13 +17,13 @@ export class UserService {
             if (!user) throw CustomError.notFound('Usuario no encontrado');
 
 
-            if(user.role === 'Client'){
+            if (user.role === 'Client') {
                 const salesPerson = await UserModel.findOne({ _id: dto.idSalesPerson });
-                if(!salesPerson) throw CustomError.notFound('Vendedor no encontrado');
-                if(salesPerson.role !== 'SalesPerson') throw CustomError.badRequest('El usuario no es un vendedor');
-                user.salesPerson = new mongoose.Types.ObjectId(dto.idSalesPerson) ;  
+                if (!salesPerson) throw CustomError.notFound('Vendedor no encontrado');
+                if (salesPerson.role !== 'SalesPerson') throw CustomError.badRequest('El usuario no es un vendedor');
+                user.salesPerson = new mongoose.Types.ObjectId(dto.idSalesPerson);
 
-            } 
+            }
 
             if (dto.name !== undefined) user.name = dto.name;
             if (dto.lastName !== undefined) user.lastName = dto.lastName;
@@ -96,7 +96,7 @@ export class UserService {
 
     public async getClientsBySalesPersonId(salesPersonId: string): Promise<GetClientsBySalesPersonDto[]> {
 
-        const seller = await UserModel.findOne({ _id: salesPersonId, role: 'SalesPerson',  state: "Active" });
+        const seller = await UserModel.findOne({ _id: salesPersonId, role: 'SalesPerson', state: "Active" });
         if (!seller) throw CustomError.notFound('Vendedor no encontrado');
 
         const clients = await UserModel.find({ salesPerson: seller._id, role: 'Client' });
@@ -110,16 +110,36 @@ export class UserService {
 
         return user.role;
 
-    } 
+    }
     public async getUsersByRole(role: string): Promise<ViewUserDto[]> {
         try {
             // const users = await UserModel.find({ role }).populate('city', '_id');
             console.log(role);
-            const users = await UserModel.find({ role , state: "Active" });
+            const users = await UserModel.find({ role, state: "Active" });
             return ViewUserDto.fromModelArray(users);
         } catch (error) {
             throw CustomError.internalServer(`Error al obtener usuarios por rol: ${error}`);
         }
     }
 
+    public async getSalesPersonIdByClientId(clientId: string): Promise<string> {
+        const client = await UserModel.findOne(
+            { _id: clientId, role: 'Client', state: 'Active' },
+            { salesPerson: 1 } 
+        );
+
+        if (!client) throw CustomError.notFound('Cliente no encontrado');
+        if (!client.salesPerson) throw CustomError.notFound('El cliente no tiene un vendedor asignado');
+
+        return client.salesPerson.toString(); 
+    }
+
+    public async getPriceCategoryIdByClientId(clientId: string): Promise<string | null> {
+        const client = await UserModel.findOne(
+            { _id: clientId, role: 'Client', state: 'Active' },
+            { priceCategory: 1 } 
+        );
+        if (!client) throw CustomError.notFound('Cliente no encontrado');
+        return client.priceCategory ? client.priceCategory.toString() : null;
+    }
 }

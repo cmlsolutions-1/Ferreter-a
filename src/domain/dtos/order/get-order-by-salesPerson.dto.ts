@@ -1,0 +1,49 @@
+
+
+export class GetOrderBySalesPersonDto {
+  constructor(
+    public _id: string,
+    public subTotal: number,
+    public tax: number,
+    public total: string,
+    public isPaid: boolean,
+    public paymendDate: Date | null,
+    public createdDate: Date,
+    public Client: any,
+    public items: OrderItemDto[]
+  ) {}
+
+  static fromModel(order: any, items: any[]): GetOrderBySalesPersonDto {
+    return new GetOrderBySalesPersonDto(
+      order._id,
+      order.subTotal,
+      order.tax,
+      order.total,
+      order.isPaid,
+      order.paymendDate ?? null,
+      order.createdDate,
+      order.idClient,
+      OrderItemDto.fromModelArray(items)
+    );
+  }
+}
+
+class OrderItemDto {
+  constructor(
+    public id: string,
+    public quantity: number,
+    public Product: any
+  ) {}
+
+  static fromModel(item: any): OrderItemDto {
+    return new OrderItemDto(
+      item.id,
+      item.quantity,
+      item.idProduct
+    );
+  }
+
+  static fromModelArray(items: any[]): OrderItemDto[] {
+    return items.map(item => this.fromModel(item));
+  }
+}

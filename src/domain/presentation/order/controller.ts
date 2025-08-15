@@ -19,17 +19,17 @@ export class OrderController {
     }
   };
 
-  updateOrder = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const [err, dto] = UpdateOrderDto.update(req.body);
-      if (err) return res.status(400).json({ error: true, message: err });
+  // updateOrder = async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const [err, dto] = UpdateOrderDto.update(req.body);
+  //     if (err) return res.status(400).json({ error: true, message: err });
 
-      await this.orderService.updateOrder(dto!);
-      return res.status(200).json({ message: 'Orden actualizada correctamente' });
-    } catch (error) {
-      next(error);
-    }
-  };
+  //     await this.orderService.updateOrder(dto!);
+  //     return res.status(200).json({ message: 'Orden actualizada correctamente' });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 
   setOrderAsPaid = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -43,10 +43,20 @@ export class OrderController {
     }
   };
 
-  getOrderById = async (req: Request, res: Response, next: NextFunction) => {
+  getOrderBySalesPerson = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
-      const order = await this.orderService.getOrderById(id);
+      const order = await this.orderService.getOrderBySalesPerson(id);
+      return res.status(200).json(order);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  getOrderByClient = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const order = await this.orderService.getOrderByClient(id);
       return res.status(200).json(order);
     } catch (error) {
       next(error);

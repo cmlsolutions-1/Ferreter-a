@@ -2,12 +2,10 @@ import mongoose, { Schema } from 'mongoose';
 
 
 const priceCategorySchema = new mongoose.Schema({
-
-    id: {
-
+    code: {
         type: String,
-        required: [true, 'Id is required'],
-        unique: true
+        required: [true, 'Code is required'],
+        unique: true,
     },
     name: {
         type: String,
