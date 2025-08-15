@@ -29,6 +29,7 @@ export class OrderService {
                 subTotal,
                 tax,
                 total,
+                isPaid: false,
                 createdDate: new Date(),
                 idClient: dto.idClient,
                 idSalesPerson: idSalesPerson,
@@ -113,26 +114,14 @@ export class OrderService {
     // }
 
     public async setOrderAsPaid(dto: UpdateOrderPaidDto): Promise<void> {
-        const session = await mongoose.startSession();
-        session.startTransaction();
+        const order = await OrderModel.findOne({ _id: dto._id });
+        if (!order) throw CustomError.notFound('Orden no encontrada');
 
-        try {
-            const order = await OrderModel.findOne({ _id: dto._id }).session(session);
-            if (!order) throw CustomError.notFound('Orden no encontrada');
+        order.isPaid = true;
+        order.paymendDate = new Date();
+        order.updatedDate = new Date();
 
-            order.isPaid = true;
-            order.paymendDate = new Date();
-            order.updatedDate = new Date();
-
-            await order.save({ session });
-
-            await session.commitTransaction();
-        } catch (error) {
-            await session.abortTransaction();
-            throw CustomError.internalServer('Error al marcar la orden como pagada ${error}');
-        } finally {
-            session.endSession();
-        }
+        await order.save();
     }
 
     public async getOrderBySalesPerson(idSalesPerson: string): Promise<any> {

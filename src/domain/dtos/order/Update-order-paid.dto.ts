@@ -4,7 +4,7 @@ export class UpdateOrderPaidDto {
   ) {}
 
   static update(data: { [key: string]: any }): [string?, UpdateOrderPaidDto?] {
-    const { _id, isPaid, paymentDate } = data;
+    const { _id } = data;
 
     if (!_id) return ['El campo "id" es obligatorio'];
     // if (typeof isPaid !== 'boolean') return ['El campo "isPaid" debe ser de tipo booleano'];

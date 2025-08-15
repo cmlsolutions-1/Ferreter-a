@@ -1,17 +1,25 @@
+import { ProductPriceDto } from "./sub-dto-anidados";
+
 export class ListProductByCategoryDto {
   constructor(
-    public referencia: string,
-    public codigo: string,
-    public description: string,
-    public imageId: string,
+     public _id: string,
+        public referencia: string,
+        public codigo: string,
+        public detalle: string,
+        public subgategoryId: string,
+        public image: string,
+        public precios: ProductPriceDto[],
   ) {}
 
   static fromModel(model: any): ListProductByCategoryDto {
     return new ListProductByCategoryDto(
+      model._id.toString(),
       model.reference,
       model.code,
       model.description,
-      model.image?._id?.toString() ?? model.image?.toString() ?? ''
+      model.subCategory?.toString() ?? '',
+      model.image?.toString() ?? '',
+      ProductPriceDto.fromModelArray(model.prices || []),
     );
   }
 

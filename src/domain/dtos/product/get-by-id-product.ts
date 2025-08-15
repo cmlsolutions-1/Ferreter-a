@@ -10,7 +10,7 @@ export class GetProductByIdDto {
     public detalle: string,
     public image: string,
     public subCategory: string,
-    public prices: ProductPriceDto[],
+    public precios: ProductPriceDto[],
     public packages: ProductPackageDto[],
     public stock: number,
   ) {}

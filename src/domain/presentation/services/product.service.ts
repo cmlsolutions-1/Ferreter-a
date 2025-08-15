@@ -117,7 +117,7 @@ export class ProductService {
         try {
             const product = await ProductModel.findOne({ _id })
                 .populate('prices.PriceCategory', 'code') 
-                .populate('image', '_id')
+                // .populate('image', '_id')
                 .populate('subCategory', '_id');
 
             if (!product) throw CustomError.notFound('Producto no encontrado');
