@@ -2,12 +2,6 @@ import mongoose, { Schema } from 'mongoose';
 
 
 const offerProductSchema = new mongoose.Schema({
-
-    id: {
-        type: String,
-        required: [true, 'Id is required'],
-        unique: true
-    },
     idOffer: {
         type: Schema.Types.ObjectId,
         ref: 'Offer',

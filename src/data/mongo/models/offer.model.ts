@@ -3,10 +3,10 @@ import mongoose from 'mongoose';
 
 const offerSchema = new mongoose.Schema({
 
-    id: {
+    name: {
+
         type: String,
-        required: [true, 'Id is required'],
-        unique: true,
+        required: [true, 'Name is required'],
     },
     percentage: {
         type: Number,
@@ -33,7 +33,7 @@ const offerSchema = new mongoose.Schema({
     },
     typePackage: {
         type: String,
-        enum: ['master', 'mount'],
+        enum: ['master', 'inner'],
         required: [true, 'type package is required'],
     },
     state: {
@@ -43,8 +43,15 @@ const offerSchema = new mongoose.Schema({
     },
     isAll: {
         type: Boolean,
-        required: [true, 'isAll is required']
-    }
+        default: false
+    },
+    products: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product",
+            required: true
+        }
+    ]
 
 });
 

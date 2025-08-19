@@ -151,4 +151,26 @@ export class OrderService {
         const dto = GetOrderByClientDto.fromModel(order, items);
         return dto;
     }
+
+    public async getAllOrder(): Promise<any> {
+
+        const orders = await OrderModel.find().lean();
+
+        if (!orders.length) throw CustomError.notFound("Este cliente no tiene órdenes");
+
+        // Traer todos los ids de órdenes
+        const orderIds = orders.map(o => o._id);
+
+        const items = await OrderItemModel.find({ idOrder: { $in: orderIds } })
+            .populate("idProduct", "reference description")
+            .lean();
+
+        // Mapear cada orden con sus items
+        const result = orders.map(order => ({
+            ...order,
+            items: items.filter(i => i.idOrder.toString() === order._id.toString())
+        }));
+
+        return result;
+    }
 }

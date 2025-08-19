@@ -18,7 +18,11 @@ const orderItemSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'Order',
         required: true
-    }
+    },
+    idOffer: {
+        type: Schema.Types.ObjectId,
+        ref: 'Offer',
+    },
 });
 
 

@@ -62,4 +62,12 @@ export class OrderController {
       next(error);
     }
   }
+  getAllOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const order = await this.orderService.getAllOrder();
+      return res.status(200).json(order);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

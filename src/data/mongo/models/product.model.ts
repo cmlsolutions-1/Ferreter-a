@@ -12,7 +12,7 @@ const packageSchema = new Schema({
         enum: ['Inner', 'Master'],
         required:true ,
     },
-    Mount: { type: Number, required: true },
+    Mount: { type: Number, required: true }
 }, { _id: false });
 
 // const stockSchema = new Schema({

@@ -8,71 +8,61 @@ import { GetOfferByIdDto } from '../../dtos/offer/get-offer-by-id';
 import { InactivateOfferDto } from '../../dtos/offer/inactive-offer.dto';
 import mongoose from 'mongoose';
 import { v4 as uuid } from 'uuid';
+import { ProductService } from './product.service';
 
 export class OfferService {
 
+
+    public constructor(
+            private readonly productService: ProductService
+        ) {
+        }
+
     public async createOffer(createOfferDto: CreateOfferDto) {
-        const {
-            id,
+        let {
+            name,
             percentage,
-            minimumQuantity,
             startDate,
             endDate,
             typePackage,
             isAll,
-            finishDate,
             state = 'Active',
             productIds = [],
+            minimumQuantity,
         } = createOfferDto;
 
+        const existOffer = await OfferModel.findOne({ name });
+        if (existOffer) throw CustomError.badRequest('Ya existe una oferta con ese nombre');
+        if(typePackage == 'master') 
+            minimumQuantity = 1; 
 
-        const existOffer = await OfferModel.findOne({ id });
-        if (existOffer) throw CustomError.badRequest('Ya existe una oferta con ese ID');
-
-        const session = await mongoose.startSession();
-        session.startTransaction();
+        console.log('productIds', productIds);
+        this.productService.validateProductsExist(productIds);
 
         try {
-
             const offer = new OfferModel({
-                id,
+                name,
                 percentage,
-                minimumQuantity,
                 startDate,
                 endDate,
-                finishDate,
                 typePackage,
                 isAll,
                 state,
+                minimumQuantity,
+                products: isAll ? [] : productIds,
             });
 
-            await offer.save({ session });
-
-
-            if (!isAll) {
-                const offerProductDocs = productIds.map(productId => ({
-                    id: uuid(),
-                    idOffer: offer._id,
-                    idProduct: productId,
-                }));
-
-                await offerProductModel.insertMany(offerProductDocs, { session });
-            }
-
-            await session.commitTransaction();
-            session.endSession();
+            await offer.save();
 
             return {
                 message: 'Oferta creada correctamente',
                 offer,
             };
-
-        } catch (error) {
-            await session.abortTransaction();
-            session.endSession();
-            throw CustomError.internalServer(`Error al crear la oferta: ${error}`);
+        } catch (error: any) {
+            throw CustomError.internalServer(`Error al crear la oferta: ${error.message || error}`);
         }
     }
+
 
     public async updateOffer(offerId: string, updateOfferDto: UpdateOfferDto) {
         const session = await mongoose.startSession();

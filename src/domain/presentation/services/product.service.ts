@@ -103,7 +103,7 @@ export class ProductService {
 
     public async listProducts(): Promise<ListProductDto[]> {
         try {
-            const products = await ProductModel.find({}, '_id reference description code title subCategory image')
+            const products = await ProductModel.find();
             // .populate('subCategory', '_id') // Asegura que sea un ObjectId
             // .populate('image', '_id');
 
@@ -171,5 +171,15 @@ export class ProductService {
         );
         console.log(priceObj);
         return priceObj ? priceObj.PosValue : null;
+    }
+
+    public async validateProductsExist(productIds: string[]) {
+        const products = await ProductModel.find({ _id: { $in: productIds } }).select('_id').lean();
+        const foundProductIds = products.map(p => p._id.toString());
+
+        const missingProductIds = productIds.filter(id => !foundProductIds.includes(id));
+        if (missingProductIds.length > 0) {
+            throw CustomError.badRequest(`Los siguientes productos no existen: ${missingProductIds.join(', ')}`);
+        }
     }
 }

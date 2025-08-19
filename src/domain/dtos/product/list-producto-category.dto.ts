@@ -1,4 +1,4 @@
-import { ProductPriceDto } from "./sub-dto-anidados";
+import { ProductPackageDto, ProductPriceDto } from "./sub-dto-anidados";
 
 export class ListProductByCategoryDto {
   constructor(
@@ -9,6 +9,8 @@ export class ListProductByCategoryDto {
         public subgategoryId: string,
         public image: string,
         public precios: ProductPriceDto[],
+        public packages: ProductPackageDto[],
+        public stock: number,
   ) {}
 
   static fromModel(model: any): ListProductByCategoryDto {
@@ -20,6 +22,8 @@ export class ListProductByCategoryDto {
       model.subCategory?.toString() ?? '',
       model.image?.toString() ?? '',
       ProductPriceDto.fromModelArray(model.prices || []),
+      ProductPackageDto.fromModelArray(model.package || []),
+      model.stock || 0,
     );
   }
 
