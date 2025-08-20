@@ -6,6 +6,7 @@ export class ProductPriceDto {
   ) {}
 
   static fromModel(model: any): ProductPriceDto {
+
     return new ProductPriceDto(
       model.PriceCategory?.code || '',
       model.Value,

@@ -103,7 +103,8 @@ export class ProductService {
 
     public async listProducts(): Promise<ListProductDto[]> {
         try {
-            const products = await ProductModel.find();
+            const products = await ProductModel.find()
+            .populate('prices.PriceCategory');
             // .populate('subCategory', '_id') // Asegura que sea un ObjectId
             // .populate('image', '_id');
 
@@ -131,6 +132,7 @@ export class ProductService {
     public async getProductsByCategory(categoryId: string): Promise<ListProductByCategoryDto[]> {
         try {
             const products = await ProductModel.find({ subCategory: categoryId })
+                .populate('prices.PriceCategory');
 
             if (!products || products.length === 0) {
                 throw CustomError.notFound('No se encontraron productos para esta categoría');
@@ -152,7 +154,7 @@ export class ProductService {
         if (dto.description) {
             query.description = { $regex: dto.description.trim(), $options: 'i' };
         }
-        const products = await ProductModel.find(query);
+        const products = await ProductModel.find(query).populate('prices.PriceCategory');;
 
         return ListProductDto.fromModelArray(products);
     }
