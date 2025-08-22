@@ -29,6 +29,7 @@ export class GetOrderByClientDto {
 class OrderItemDto {
   constructor(
     public id: string,
+    public price: number,
     public quantity: number,
     public Product: any
   ) {}
@@ -36,6 +37,7 @@ class OrderItemDto {
   static fromModel(item: any): OrderItemDto {
     return new OrderItemDto(
       item.id,
+      item.price,
       item.quantity,
       item.idProduct
     );

@@ -1,6 +1,6 @@
 
 
-export class GetOrderBySalesPersonDto {
+export class GetOrderByIdDto {
   constructor(
     public _id: string,
     public subTotal: number,
@@ -9,12 +9,11 @@ export class GetOrderBySalesPersonDto {
     public isPaid: boolean,
     public paymendDate: Date | null,
     public createdDate: Date,
-    public Client: any,
     public items: OrderItemDto[]
   ) {}
 
-  static fromModel(order: any, items: any[]): GetOrderBySalesPersonDto {
-    return new GetOrderBySalesPersonDto(
+  static fromModel(order: any, items: any[]): GetOrderByIdDto {
+    return new GetOrderByIdDto(
       order._id,
       order.subTotal,
       order.tax,
@@ -22,7 +21,6 @@ export class GetOrderBySalesPersonDto {
       order.isPaid,
       order.paymendDate ?? null,
       order.createdDate,
-      order.idClient,
       OrderItemDto.fromModelArray(items)
     );
   }

@@ -9,6 +9,7 @@ import { UserService } from './user.service';
 import { ProductService } from './product.service';
 import { GetOrderBySalesPersonDto } from '../../dtos/order/get-order-by-salesPerson.dto';
 import { GetOrderByClientDto } from '../../dtos/order/get-order-by-client.dto';
+import { GetOrderByIdDto } from '../../dtos/order/get-order-by-id.dto';
 
 
 export class OrderService {
@@ -125,31 +126,41 @@ export class OrderService {
 
     public async getOrderBySalesPerson(idSalesPerson: string): Promise<any> {
 
-        const order = await OrderModel.findOne({ idSalesPerson })
+        const orders = await OrderModel.find({ idSalesPerson })
             .populate('idClient', 'name lastName id')
             .lean();
-        if (!order) throw CustomError.notFound('Este vendedor no tiene ordenes');
+        if (!orders) throw CustomError.notFound('Este vendedor no tiene ordenes');
 
-        const items = await OrderItemModel.find({ idOrder: order._id })
-            .populate('idProduct', 'reference description')
-            .lean();
+        const result = await Promise.all(
+            orders.map(async (order) => {
+                const items = await OrderItemModel.find({ idOrder: order._id })
+                    .populate('idProduct', 'reference description')
+                    .lean();
 
-        const dto = GetOrderBySalesPersonDto.fromModel(order, items);
-        return dto;
+                return GetOrderBySalesPersonDto.fromModel(order, items);
+            })
+        );
+
+        return result;
     }
 
     public async getOrderByClient(idClient: string): Promise<any> {
 
-        const order = await OrderModel.findOne({ idClient })
+        const orders = await OrderModel.find({ idClient })
 
-        if (!order) throw CustomError.notFound('Este cliente no tiene ordenes');
+        if (!orders) throw CustomError.notFound('Este cliente no tiene ordenes');
 
-        const items = await OrderItemModel.find({ idOrder: order._id })
-            .populate('idProduct', 'reference description')
-            .lean();
+        const result = await Promise.all(
+            orders.map(async (order) => {
+                const items = await OrderItemModel.find({ idOrder: order._id })
+                    .populate('idProduct', 'reference description')
+                    .lean();
 
-        const dto = GetOrderByClientDto.fromModel(order, items);
-        return dto;
+                return GetOrderByClientDto.fromModel(order, items);
+            })
+        );
+
+        return result;
     }
 
     public async getAllOrder(): Promise<any> {
@@ -172,5 +183,19 @@ export class OrderService {
         }));
 
         return result;
+    }
+
+    public async getOrderById(id: string): Promise<any> {
+
+        const order = await OrderModel.findById(id);
+
+        if (!order) throw CustomError.notFound('Esta orden no fue encontrada');
+
+        const items = await OrderItemModel.find({ idOrder: order._id })
+            .populate('idProduct', 'reference description')
+            .lean();
+
+        const dto = GetOrderByIdDto.fromModel(order, items);
+        return dto;
     }
 }

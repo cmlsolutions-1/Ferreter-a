@@ -70,4 +70,14 @@ export class OrderController {
       next(error);
     }
   }
+
+  getOrderById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const order = await this.orderService.getOrderById(id);
+      return res.status(200).json(order);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

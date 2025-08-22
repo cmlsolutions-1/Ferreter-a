@@ -25,6 +25,7 @@ export class OrderRoutes {
         router.patch('/paid', orderController.setOrderAsPaid);
         router.get('/getOrdersBySalesPerson/:id', orderController.getOrderBySalesPerson);
         router.get('/getOrdersByClient/:id', orderController.getOrderByClient);
+        router.get('/getOrdersById/:id', orderController.getOrderById);
         router.get('/', orderController.getAllOrder);
 
         return router;
