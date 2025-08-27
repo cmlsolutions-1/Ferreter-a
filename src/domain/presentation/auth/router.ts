@@ -4,6 +4,8 @@ import { AuthService } from '../services/auth.service';
 import { EmailService } from '../services/email.service';
 import { AuthController } from './controller';
 import { PriceCategoryService } from '../services/price.category.service';
+import { AuthMiddleware } from '../middlewares/auth.middleware';
+import { hasRole } from '../middlewares/role.middelware';
 
 
 export class AuthRoutes {
@@ -20,7 +22,7 @@ export class AuthRoutes {
         const authService = new AuthService(emailService, priceCategoryService);
         const authController = new AuthController(authService);
 
-        router.post('/register', authController.register);
+        router.post('/register', [AuthMiddleware.validateJWT, hasRole('Admin')], authController.register);
         router.post('/login', authController.login);
         router.get('/validate-email/:token', authController.validateEmail);
 

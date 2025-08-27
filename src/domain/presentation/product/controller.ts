@@ -33,6 +33,7 @@ export class ProductController {
   };
 
   listProducts = async (req: Request, res: Response, next: NextFunction) => {
+
     try {
       const products = await this.productService.listProducts();
       return res.status(200).json(products);
@@ -44,7 +45,8 @@ export class ProductController {
   getProductById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { _id } = req.params;
-      const product = await this.productService.getProductById(_id);
+      const { priceCategory, role } = req.body.user!;
+      const product = await this.productService.getProductById(_id, { priceCategory, role });
       return res.status(200).json(product);
     } catch (error) {
       next(error);
@@ -54,7 +56,9 @@ export class ProductController {
   getProductsByCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { categoryId } = req.params;
-      const products = await this.productService.getProductsByCategory(categoryId);
+
+      const { priceCategory, role } = req.body.user!; 
+      const products = await this.productService.getProductsByCategory(categoryId, { priceCategory, role });
       return res.status(200).json(products);
     } catch (error) {
       next(error);
@@ -66,7 +70,9 @@ export class ProductController {
       const [err, dto] = FilterProductDto.create(req.query);
       if (err) return res.status(400).json({ error: true, message: err });
 
-      const products = await this.productService.filterProducts(dto!);
+      const { priceCategory, role } = req.body.user!; 
+
+      const products = await this.productService.filterProducts(dto!, { priceCategory, role } );
       return res.status(200).json(products);
     } catch (error) {
       next(error);

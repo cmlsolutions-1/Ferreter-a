@@ -50,7 +50,7 @@ export class AuthService {
 
             await this.sendEmailValidationLink(principalEmail!);
 
-            const token = await JwtAdapter.generateToken({ id: user.id });
+            const token = await JwtAdapter.generateToken({ _id: user._id, role: user.role, priceCategoryService: user.priceCategory, email: principalEmail, name: user.name, id: user.id });
             if (!token) throw CustomError.internalServer('Error Mientras se crea el JWT');
 
             return {
@@ -84,7 +84,7 @@ export class AuthService {
 
 
 
-        const token = await JwtAdapter.generateToken({ id: user.id });
+        const token = await JwtAdapter.generateToken({ _id: user._id, role: user.role, priceCategory: user.priceCategory, email: loginUserDto.email, name: user.name, id: user.id });
         if (!token) throw CustomError.internalServer('Error while creating JWT');
 
         return {

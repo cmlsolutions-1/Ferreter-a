@@ -16,7 +16,7 @@ export function errorHandler(
     });
   }
 
-  console.error('Error no controlado:', err);
+  console.error('Error no controlado aaaaaaaaaaaaaaa:', err);
   return res.status(500).json({
     error: true,
     message: 'Error interno del servidor',

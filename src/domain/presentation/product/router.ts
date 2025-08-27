@@ -3,6 +3,7 @@ import { ProductController } from './controller';
 import { ProductService } from '../services/product.service';
 import { CategoryService } from '../services/category.service';
 import { PriceCategoryService } from '../services/price.category.service';
+import { AuthMiddleware } from '../middlewares/auth.middleware';
 
 
 export class ProductRoutes {
@@ -17,9 +18,9 @@ export class ProductRoutes {
     router.post('/', productController.createProduct);
     router.put('/:reference', productController.updateProduct);
     router.get('/', productController.listProducts);
-    router.get('/filter', productController.filterProducts);
-    router.get('/:_id', productController.getProductById);
-    router.get('/category/:categoryId', productController.getProductsByCategory);
+    router.get('/filter', [AuthMiddleware.validateJWT], productController.filterProducts);
+    router.get('/:_id', [AuthMiddleware.validateJWT], productController.getProductById);
+    router.get('/category/:categoryId', [AuthMiddleware.validateJWT], productController.getProductsByCategory);
 
     return router;
   }

@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { PriceCategoryService } from '../services/price.category.service';
 import { PriceCategoryController } from './controller';
+import { AuthMiddleware } from '../middlewares/auth.middleware';
+import { hasRole } from '../middlewares/role.middelware';
 
 export class PriceCategoryRoutes {
     
@@ -9,8 +11,8 @@ export class PriceCategoryRoutes {
     const priceCategoryService = new PriceCategoryService();
     const priceCategoryController = new PriceCategoryController(priceCategoryService);
 
-    router.post('/', priceCategoryController.createCategory);
-    router.get('/', priceCategoryController.listProducts);
+    router.post('/', [AuthMiddleware.validateJWT, hasRole('Admin')], priceCategoryController.createCategory);
+    router.get('/', [AuthMiddleware.validateJWT, hasRole('Admin')], priceCategoryController.listProducts);
 
 
     return router;

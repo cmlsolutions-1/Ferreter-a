@@ -104,32 +104,37 @@ export class ProductService {
     public async listProducts(): Promise<ListProductDto[]> {
         try {
             const products = await ProductModel.find()
-            .populate('prices.PriceCategory');
+                .populate('prices.PriceCategory');
             // .populate('subCategory', '_id') // Asegura que sea un ObjectId
             // .populate('image', '_id');
 
-            return ListProductDto.fromModelArray(products);
+            const filteredProductos = this.filterByPriceCategory(products, null);
+            console.log(filteredProductos);
+
+            return ListProductDto.fromModelArray(filteredProductos);
         } catch (error) {
             throw CustomError.internalServer(`Error al listar los productos: ${error}`);
         }
     }
 
-    public async getProductById(_id: string): Promise<GetProductByIdDto> {
+    public async getProductById(_id: string, info: any): Promise<GetProductByIdDto> {
         try {
             const product = await ProductModel.findOne({ _id })
-                .populate('prices.PriceCategory', 'code') 
+                .populate('prices.PriceCategory', 'code')
                 // .populate('image', '_id')
                 .populate('subCategory', '_id');
 
             if (!product) throw CustomError.notFound('Producto no encontrado');
 
-            return GetProductByIdDto.fromModel(product);
+            const filteredProductos = this.filterByPriceCategory(product, info);
+
+            return GetProductByIdDto.fromModel(filteredProductos);
         } catch (error) {
             throw CustomError.internalServer(`Error al obtener el producto: ${error}`);
         }
     }
 
-    public async getProductsByCategory(categoryId: string): Promise<ListProductByCategoryDto[]> {
+    public async getProductsByCategory(categoryId: string, info: any): Promise<ListProductByCategoryDto[]> {
         try {
             const products = await ProductModel.find({ subCategory: categoryId })
                 .populate('prices.PriceCategory');
@@ -138,13 +143,15 @@ export class ProductService {
                 throw CustomError.notFound('No se encontraron productos para esta categoría');
             }
 
+            const filteredProductos = this.filterByPriceCategory(products, info);
+
             return ListProductByCategoryDto.fromModelArray(products);
         } catch (error) {
             throw CustomError.internalServer(`Error al obtener productos por categoría: ${error}`);
         }
     }
 
-    public async filterProducts(dto: FilterProductDto): Promise<ListProductDto[]> {
+    public async filterProducts(dto: FilterProductDto, info: any): Promise<ListProductDto[]> {
         const query: any = {};
 
         if (dto.reference) {
@@ -154,9 +161,11 @@ export class ProductService {
         if (dto.description) {
             query.description = { $regex: dto.description.trim(), $options: 'i' };
         }
-        const products = await ProductModel.find(query).populate('prices.PriceCategory');;
+        let products = await ProductModel.find(query).populate('prices.PriceCategory');
 
-        return ListProductDto.fromModelArray(products);
+        const filteredProductos = this.filterByPriceCategory(products, info);
+
+        return ListProductDto.fromModelArray(filteredProductos);
     }
 
     public async getPriceByCategory(productId: string, priceCategoryId: string) {
@@ -184,4 +193,53 @@ export class ProductService {
             throw CustomError.badRequest(`Los siguientes productos no existen: ${missingProductIds.join(', ')}`);
         }
     }
+
+    private filterByPriceCategory(products: any | any[], info: any): any | any[] {
+        const isArray = Array.isArray(products);
+        let productsList = isArray ? products : [products]; // convierto a lista para reutilizar lógica
+
+        let productsReturn: any[] = products;
+
+        if (!info || !info.role) {
+            productsReturn = productsList.map(prod => {
+                const prices = prod.prices.filter(
+                    (p: any) => p.PriceCategory.code.toString() == "FER"
+                );
+
+                return {
+                    ...prod.toObject(),
+                    prices
+                };
+            });
+        }
+        else if (info.role == 'Client') {
+            productsReturn = productsList.map(prod => {
+                const prices = prod.prices.filter(
+                    (p: any) => p.PriceCategory._id.toString() === info.priceCategory
+                );
+
+                return {
+                    ...prod.toObject(),
+                    prices
+                };
+            });
+        }
+        else if (info.role == 'SalesPerson') {
+            productsReturn = productsList.map(prod => {
+                const prices = prod.prices.filter(
+                    (p: any) =>
+                        p.PriceCategory.code.toString() == "001" ||
+                        p.PriceCategory.code.toString() == "FER"
+                );
+
+                return {
+                    ...prod.toObject(),
+                    prices
+                };
+            });
+        }
+
+        return isArray ? productsReturn : productsReturn[0]; // devuelvo array o un único objeto
+    }
+
 }
