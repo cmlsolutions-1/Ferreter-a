@@ -23,7 +23,7 @@ export class OrderRoutes {
         const orderController = new OrderController(orderService);
 
         
-        router.post('/', orderController.createOrder);
+        router.post('/', [AuthMiddleware.validateJWT, hasRole('Client')], orderController.createOrder);
         router.patch('/paid', orderController.setOrderAsPaid);
         router.get('/getOrdersBySalesPerson/:id', [AuthMiddleware.validateJWT, hasRole('SalesPerson')], orderController.getOrderBySalesPerson);
         router.get('/getOrdersByClient/:id', [AuthMiddleware.validateJWT, hasRole('Client')], orderController.getOrderByClient);
