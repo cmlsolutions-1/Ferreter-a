@@ -26,12 +26,12 @@ export class AuthMiddleware {
     try {
 
       const payload = await JwtAdapter.validateToken<{ _id: string, role: Role, priceCategory: string, email: string, name: string, id: string }>(token);
-      if ( !payload ) throw CustomError.unauthorized('Invalid token'); 
+      if ( !payload ) throw CustomError.unauthorized('Token invalido'); 
       
       const user = await UserModel.findById( payload._id );
-      if ( !user ) throw CustomError.unauthorized('Invalid token - user'); 
+      if ( !user ) throw CustomError.unauthorized('token de usuario no existe'); 
 
-      // todo: validar si el usuario está activo
+      if ( !user.emailValidated ) throw CustomError.unauthorized('El usuario no ha validado su correo');
 
       req.body.user = payload;
 

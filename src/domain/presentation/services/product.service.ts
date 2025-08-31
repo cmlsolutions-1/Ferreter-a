@@ -224,7 +224,7 @@ export class ProductService {
                 };
             });
         }
-        else if (info.role == 'SalesPerson') {
+        else if (info.role == 'SalesPerson' || info.role == 'Admin') {
             productsReturn = productsList.map(prod => {
                 const prices = prod.prices.filter(
                     (p: any) =>
@@ -238,7 +238,6 @@ export class ProductService {
                 };
             });
         }
-
         return isArray ? productsReturn : productsReturn[0]; // devuelvo array o un único objeto
     }
 

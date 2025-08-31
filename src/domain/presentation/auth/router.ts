@@ -15,9 +15,10 @@ export class AuthRoutes {
         const emailService = new EmailService(
             process.env.MAILER_SERVICE!,
             process.env.MAILER_EMAIL!,
-            process.env.SENDER_EMAIL_PASSWORD!,
-            process.env.SEND_EMAIL !== 'true' ? true : false,
+            process.env.MAILER_SECRET_KEY!,
+            process.env.SEND_EMAIL === 'true' ? true : false,
         );
+        
         const priceCategoryService = new PriceCategoryService();
         const authService = new AuthService(emailService, priceCategoryService);
         const authController = new AuthController(authService);

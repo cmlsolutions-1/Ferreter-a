@@ -79,6 +79,8 @@ export class AuthService {
 
         if (!user) throw CustomError.badRequest('Email not exist');
 
+        if(user.emailValidated === false) throw CustomError.unauthorized('El usuario no ha validado su correo');
+
         const isMatching = bcryptAdapter.compare(loginUserDto.password, user.password);
         if (!isMatching) throw CustomError.badRequest('Password is not valid');
 
@@ -97,13 +99,14 @@ export class AuthService {
 
     private sendEmailValidationLink = async (email: string) => {
 
+        console.log('Sending email to:', email);
         const token = await JwtAdapter.generateToken({ email });
         if (!token) throw CustomError.internalServer('Error getting token');
 
         const link = `${envs.WEBSERVICE_URL}/auth/validate-email/${token}`;
         const html = `
-      <h1>Validate your email</h1>
-      <p>Click on the following link to validate your email</p>
+      <h1>Validar tu correo</h1>
+      <p>Presiona click en el siguiente enlace para validar tu correo</p>
       <a href="${link}">Validate your email: ${email}</a>
     `;
 
@@ -114,6 +117,7 @@ export class AuthService {
         }
 
         const isSent = await this.emailService.sendEmail(options);
+        console.log('Email sent status:', isSent);
         if (!isSent) throw CustomError.internalServer('Error sending email');
 
         return true;
@@ -128,7 +132,14 @@ export class AuthService {
         const { email } = payload as { email: string };
         if (!email) throw CustomError.internalServer('Email not in token');
 
-        const user = await UserModel.findOne({ email });
+        const user = await UserModel.findOne({
+            email: {
+                $elemMatch: {
+                    EmailAddres: email,
+                    IsPrincipal: true
+                }
+            }
+        });
         if (!user) throw CustomError.internalServer('Email not exists');
 
         user.emailValidated = true;

@@ -7,19 +7,28 @@ import { CategoryService } from '../services/category.service';
 import { PriceCategoryService } from '../services/price.category.service';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { hasRole } from '../middlewares/role.middelware';
+import { EmailService } from '../services/email.service';
 
 
 
 export class OrderRoutes {
 
     static get routes(): Router {
+
+        const emailService = new EmailService(
+                    process.env.MAILER_SERVICE!,
+                    process.env.MAILER_EMAIL!,
+                    process.env.MAILER_SECRET_KEY!,
+                    process.env.SEND_EMAIL === 'true' ? true : false,
+        );
+
         const router = Router();
         const userService = new UserService();
         const categoryService = new CategoryService();
         const categoryPriceService = new PriceCategoryService();
 
         const productoService = new ProductService(categoryService, categoryPriceService);
-        const orderService = new OrderService(userService, productoService);
+        const orderService = new OrderService(userService, productoService, emailService);
         const orderController = new OrderController(orderService);
 
         

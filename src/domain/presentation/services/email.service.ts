@@ -42,7 +42,7 @@ export class EmailService {
 
 
     try {
-
+      
       if ( !this.postToProvider ) return true;
 
       const sentInformation = await this.transporter.sendMail( {
@@ -52,7 +52,8 @@ export class EmailService {
         attachments: attachements,
       });
 
-      // console.log( sentInformation );
+      console.log( 'Email sent information:' );
+      console.log( sentInformation );
 
       return true;
     } catch ( error ) {
