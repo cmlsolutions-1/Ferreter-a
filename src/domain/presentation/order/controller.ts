@@ -19,18 +19,6 @@ export class OrderController {
     }
   };
 
-  // updateOrder = async (req: Request, res: Response, next: NextFunction) => {
-  //   try {
-  //     const [err, dto] = UpdateOrderDto.update(req.body);
-  //     if (err) return res.status(400).json({ error: true, message: err });
-
-  //     await this.orderService.updateOrder(dto!);
-  //     return res.status(200).json({ message: 'Orden actualizada correctamente' });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
-
   setOrderAsPaid = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const [err, dto] = UpdateOrderPaidDto.update(req.body);

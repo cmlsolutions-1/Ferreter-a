@@ -33,7 +33,7 @@ export class OrderRoutes {
 
         
         router.post('/', [AuthMiddleware.validateJWT, hasRole('Client')], orderController.createOrder);
-        router.patch('/paid', orderController.setOrderAsPaid);
+        router.patch('/paid', [AuthMiddleware.validateJWT, hasRole('SalesPerson')], orderController.setOrderAsPaid);
         router.get('/getOrdersBySalesPerson/:id', [AuthMiddleware.validateJWT, hasRole('SalesPerson')], orderController.getOrderBySalesPerson);
         router.get('/getOrdersByClient/:id', [AuthMiddleware.validateJWT, hasRole('Client')], orderController.getOrderByClient);
         router.get('/getOrdersById/:id', [AuthMiddleware.validateJWT], orderController.getOrderById);
