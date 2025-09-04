@@ -9,11 +9,13 @@ export class ViewUserDto {
     public lastName: string,
     public emails: UserEmailDto[],
     public phones: UserPhoneDto[],
+    public address: string[],
     public cityId: string,
     public role: 'Admin' | 'SalesPerson' | 'Client',
+    public salesPersonId: string | null,
+    public clientIds: string[],
+    public priceCategoryId: string | null,
     public state: 'Active' | 'Inactive',
-    public address: string[],
-    public extra: any = null 
   ) {}
 
   static fromModel(model: any): ViewUserDto {
@@ -24,42 +26,15 @@ export class ViewUserDto {
       model.lastName,
       UserEmailDto.fromModelArray(model.email || []),
       UserPhoneDto.fromModelArray(model.phone || []),
+      model.addres || [],
       model.city?._id?.toString() ?? model.city?.toString() ?? '',
       model.role,
+      model.salesPerson?._id?.toString() ?? model.salesPerson?.toString() ?? null,
+      (model.clients || []).map((c: any) => c?._id?.toString() ?? c.toString()),
+      model.priceCategory?._id?.toString() ?? model.priceCategory?.toString() ?? null,
       model.state,
-      model.addres || [],
-      null
+
     );
-
-    switch (model.role) {
-      case 'Admin':
-        base.extra = {}; // Admin no necesita extra info por ahora
-        break;
-
-      case 'SalesPerson':
-        base.extra = {
-          clients: (model.clients || []).map((c: any) => ({
-            id: c._id?.toString() ?? c.toString(),
-            name: c.name,
-            lastName: c.lastName,
-          }))
-        };
-        break;
-
-      case 'Client':
-        base.extra = {
-          salesPerson: model.salesPerson
-            ? {
-                id: model.salesPerson._id?.toString() ?? model.salesPerson.toString(),
-                name: model.salesPerson.name,
-                lastName: model.salesPerson.lastName,
-              }
-            : null,
-          priceCategoryId: model.priceCategory?._id?.toString() ?? model.priceCategory?.toString() ?? null
-        };
-        break;
-    }
-
     return base;
   }
 
