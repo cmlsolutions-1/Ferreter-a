@@ -12,6 +12,11 @@ export class UploadService {
 
       const product = await ProductModel.findOne({ reference }).populate("image");
 
+      if (!product) {
+        console.warn(`No existe producto con referencia ${reference}, se omite la imagen.`);
+        return null;
+      }
+
       if (product?.image) {
         const existingImage: any = product.image;
 
