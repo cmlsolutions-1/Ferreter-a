@@ -16,6 +16,7 @@ const imageSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Name is required'],
     },
+    lastUpdated: { type: Date, default: Date.now },
 });
 
 

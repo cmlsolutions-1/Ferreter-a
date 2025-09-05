@@ -20,7 +20,7 @@ export class UploadController {
             if (!product) {
                 return res.status(404).json({ error: "Product not found" });
             }
-            res.json({ image, product });
+            res.status(200).json({ image, product });
         } catch (error) {
             next(error);
         }
@@ -28,9 +28,9 @@ export class UploadController {
 
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { public_id } = req.params;
-            const result = await this.uploadService.deleteFile(public_id);
-            res.json(result);
+            const { idCloud } = req.body
+            const result = await this.uploadService.deleteFile(idCloud);
+            return res.status(200).json(result);
         } catch (error) {
             next(error);
         }

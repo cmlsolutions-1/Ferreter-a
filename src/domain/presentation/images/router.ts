@@ -13,7 +13,7 @@ export class UploadRoutes {
         const upload = multer({ dest: "uploads/" });
 
         router.post("/:reference", upload.single("file"), uploadController.upload);
-        router.delete("/:public_id", uploadController.delete);
+        router.delete("/", uploadController.delete);
 
         return router;
     }
