@@ -3,7 +3,7 @@ import mongoose, { Schema } from 'mongoose';
 
 const imageSchema = new mongoose.Schema({
 
-    idImage: {
+    idCloud: {
         type: String,
         required: [true, 'Id is required'],
         unique: true
@@ -29,5 +29,5 @@ imageSchema.set('toJSON', {
 
 
 
-export const CategoryModel = mongoose.model('Image', imageSchema);
+export const ImageModel = mongoose.model('Image', imageSchema);
 

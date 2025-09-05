@@ -44,7 +44,6 @@ export class ProductService {
                 reference: dto.reference,
                 code: dto.code,
                 description: dto.description,
-                image: dto.image,
                 category: dto.subCategory,
                 prices: pricesWithIds,
                 package: dto.packagee ?? [],
@@ -71,7 +70,6 @@ export class ProductService {
         try {
             if (dto.code !== undefined) product.code = dto.code;
             if (dto.description !== undefined) product.description = dto.description;
-            if (dto.image !== undefined) product.image = new mongoose.Types.ObjectId(dto.image);
             if (dto.category !== undefined) product.subCategory = new mongoose.Types.ObjectId(dto.category);
             if (dto.prices !== undefined) product.prices = new mongoose.Types.DocumentArray(
                 dto.prices.map(p => ({
@@ -104,12 +102,20 @@ export class ProductService {
     public async listProducts(): Promise<ListProductDto[]> {
         try {
             const products = await ProductModel.find()
-                .populate('prices.PriceCategory');
-            // .populate('subCategory', '_id') // Asegura que sea un ObjectId
-            // .populate('image', '_id');
+                .populate('prices.PriceCategory', 'code')
+                .populate('image', '_id url name idCloud')
+                .populate('subCategory', '_id');
 
-            const filteredProductos = this.filterByPriceCategory(products, null);
-            console.log(filteredProductos);
+            if (!products || products.length === 0) {
+                throw CustomError.notFound('No se encontraron productos');
+            }
+
+            const safeProducts = products.map(product => ({
+                ...product.toObject(),
+                image: product.image ?? null,
+            }));
+
+            const filteredProductos = this.filterByPriceCategory(safeProducts, null);
 
             return ListProductDto.fromModelArray(filteredProductos);
         } catch (error) {
@@ -117,56 +123,92 @@ export class ProductService {
         }
     }
 
+
+
     public async getProductById(_id: string, info: any): Promise<GetProductByIdDto> {
         try {
             const product = await ProductModel.findOne({ _id })
                 .populate('prices.PriceCategory', 'code')
-                // .populate('image', '_id')
+                .populate('image', '_id url name idCloud')
                 .populate('subCategory', '_id');
 
             if (!product) throw CustomError.notFound('Producto no encontrado');
 
-            const filteredProductos = this.filterByPriceCategory(product, info);
+            const safeProduct = {
+                ...product.toObject(),
+                image: product.image ?? null,
+            };
 
+
+
+            const filteredProductos = this.filterByPriceCategory(safeProduct, info);
             return GetProductByIdDto.fromModel(filteredProductos);
         } catch (error) {
             throw CustomError.internalServer(`Error al obtener el producto: ${error}`);
         }
     }
 
+
     public async getProductsByCategory(categoryId: string, info: any): Promise<ListProductByCategoryDto[]> {
         try {
             const products = await ProductModel.find({ subCategory: categoryId })
-                .populate('prices.PriceCategory');
+                .populate('prices.PriceCategory', 'code')
+                .populate('image', '_id url name idCloud')
+                .populate('subCategory', '_id');
 
             if (!products || products.length === 0) {
                 throw CustomError.notFound('No se encontraron productos para esta categoría');
             }
 
-            const filteredProductos = this.filterByPriceCategory(products, info);
+            // Normalizar productos (image siempre presente aunque sea null)
+            const safeProducts = products.map(product => ({
+                ...product.toObject(),
+                image: product.image ?? null,
+            }));
 
-            return ListProductByCategoryDto.fromModelArray(products);
+            const filteredProductos = this.filterByPriceCategory(safeProducts, info);
+
+            return ListProductByCategoryDto.fromModelArray(filteredProductos);
         } catch (error) {
             throw CustomError.internalServer(`Error al obtener productos por categoría: ${error}`);
         }
     }
 
+
     public async filterProducts(dto: FilterProductDto, info: any): Promise<ListProductDto[]> {
-        const query: any = {};
+        try {
+            const query: any = {};
 
-        if (dto.reference) {
-            query.reference = dto.reference.trim();
+            if (dto.reference) {
+                query.reference = dto.reference.trim();
+            }
+
+            if (dto.description) {
+                query.description = { $regex: dto.description.trim(), $options: 'i' };
+            }
+
+            const products = await ProductModel.find(query)
+                .populate('prices.PriceCategory', 'code')
+                .populate('image', '_id url name idCloud')
+                .populate('subCategory', '_id');
+
+            if (!products || products.length === 0) {
+                throw CustomError.notFound('No se encontraron productos con los filtros especificados');
+            }
+
+            const safeProducts = products.map(product => ({
+                ...product.toObject(),
+                image: product.image ?? null,
+            }));
+
+            const filteredProductos = this.filterByPriceCategory(safeProducts, info);
+
+            return ListProductDto.fromModelArray(filteredProductos);
+        } catch (error) {
+            throw CustomError.internalServer(`Error al filtrar los productos: ${error}`);
         }
-
-        if (dto.description) {
-            query.description = { $regex: dto.description.trim(), $options: 'i' };
-        }
-        let products = await ProductModel.find(query).populate('prices.PriceCategory');
-
-        const filteredProductos = this.filterByPriceCategory(products, info);
-
-        return ListProductDto.fromModelArray(filteredProductos);
     }
+
 
     public async getPriceByCategory(productId: string, priceCategoryId: string) {
         const product = await ProductModel.findById(productId)
@@ -175,12 +217,9 @@ export class ProductService {
         if (!product) {
             throw CustomError.notFound('Producto no encontrado');
         }
-        console.log('Product:', product);
-        console.log('Price Category ID:', priceCategoryId);
         const priceObj = product.prices.find(
             p => p.PriceCategory.toString() == priceCategoryId
         );
-        console.log(priceObj);
         return priceObj ? priceObj.PosValue : null;
     }
 
@@ -207,7 +246,7 @@ export class ProductService {
                 );
 
                 return {
-                    ...prod.toObject(),
+                    ...prod,
                     prices
                 };
             });
@@ -219,7 +258,7 @@ export class ProductService {
                 );
 
                 return {
-                    ...prod.toObject(),
+                    ...prod,
                     prices
                 };
             });
@@ -233,12 +272,12 @@ export class ProductService {
                 );
 
                 return {
-                    ...prod.toObject(),
+                    ...prod,
                     prices
                 };
             });
         }
-        return isArray ? productsReturn : productsReturn[0]; // devuelvo array o un único objeto
+        return isArray ? productsReturn : productsReturn[0];
     }
 
 }

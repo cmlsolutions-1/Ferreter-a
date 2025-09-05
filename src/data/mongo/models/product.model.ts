@@ -7,18 +7,13 @@ const priceSchema = new Schema({
 }, { _id: false });
 
 const packageSchema = new Schema({
-    typePackage: { 
-        type: String, 
+    typePackage: {
+        type: String,
         enum: ['Inner', 'Master'],
-        required:true ,
+        required: true,
     },
     Mount: { type: Number, required: true }
 }, { _id: false });
-
-// const stockSchema = new Schema({
-//     Store: { type: String, required: true },
-//     Mount: { type: Number, required: true },
-// }, { _id: false });
 
 const productSchema = new mongoose.Schema({
 
@@ -39,7 +34,6 @@ const productSchema = new mongoose.Schema({
     image: {
         type: Schema.Types.ObjectId,
         ref: 'Image',
-        required: true
     },
 
     subCategory: {
@@ -50,7 +44,7 @@ const productSchema = new mongoose.Schema({
     package: {
         type: [packageSchema]
     },
-    stock : {
+    stock: {
         type: Number
     }
 

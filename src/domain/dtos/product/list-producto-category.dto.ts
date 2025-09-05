@@ -1,3 +1,4 @@
+import { ImageDto } from "../Image/image.dto";
 import { ProductPackageDto, ProductPriceDto } from "./sub-dto-anidados";
 
 export class ListProductByCategoryDto {
@@ -7,7 +8,7 @@ export class ListProductByCategoryDto {
         public codigo: string,
         public detalle: string,
         public subgategoryId: string,
-        public image: string,
+        public image: ImageDto | null,
         public precios: ProductPriceDto[],
         public packages: ProductPackageDto[],
         public stock: number,
@@ -20,7 +21,7 @@ export class ListProductByCategoryDto {
       model.code,
       model.description,
       model.subCategory?.toString() ?? '',
-      model.image?.toString() ?? '',
+      model.image ? ImageDto.fromModel(model.image) : null,
       ProductPriceDto.fromModelArray(model.prices || []),
       ProductPackageDto.fromModelArray(model.package || []),
       model.stock || 0,

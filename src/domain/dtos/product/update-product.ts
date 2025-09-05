@@ -13,7 +13,6 @@ export class UpdateProductDto {
   private constructor(
     public code?: string,
     public description?: string,
-    public image?: string,
     public category?: string,
     public prices?: PriceDto[],
     public packagee?: PackageDto[],
@@ -39,6 +38,6 @@ export class UpdateProductDto {
       }
     }
 
-    return [undefined, new UpdateProductDto(codigo, detalle, image, subCategory, precios, pkg)];
+    return [undefined, new UpdateProductDto(codigo, detalle, subCategory, precios, pkg)];
   }
 }
