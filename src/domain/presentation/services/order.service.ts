@@ -75,7 +75,7 @@ export class OrderService {
     };
   }
   public async setOrderAsPaid(dto: UpdateOrderPaidDto): Promise<void> {
-    
+
     const populatedOrder = await OrderModel.findOne({ _id: dto._id })
       .populate('idClient', 'name lastName email')
       .populate('idSalesPerson', 'name lastName email')
@@ -140,7 +140,13 @@ export class OrderService {
     const result = await Promise.all(
       orders.map(async (order) => {
         const items = await OrderItemModel.find({ idOrder: order._id })
-          .populate('idProduct', 'reference description')
+          .populate({
+            path: 'idProduct',
+            select: 'reference description image',
+            populate: {
+              path: 'image'
+            }
+          })
           .lean();
 
         return GetOrderByClientDto.fromModel(order, items);
@@ -159,7 +165,13 @@ export class OrderService {
     const orderIds = orders.map(o => o._id);
 
     const items = await OrderItemModel.find({ idOrder: { $in: orderIds } })
-      .populate("idProduct", "reference description")
+      .populate({
+        path: 'idProduct',
+        select: 'reference description image',
+        populate: {
+          path: 'image'
+        }
+      })
       .lean();
 
     const result = orders.map(order => ({
