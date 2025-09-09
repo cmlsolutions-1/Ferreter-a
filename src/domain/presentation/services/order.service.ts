@@ -189,8 +189,13 @@ export class OrderService {
     if (!order) throw CustomError.notFound('Esta orden no fue encontrada');
 
     const items = await OrderItemModel.find({ idOrder: order._id })
-      .populate('idProduct', 'reference description')
-      .lean();
+      .populate({
+        path: 'idProduct',
+        select: 'reference description image',
+        populate: {
+          path: 'image'
+        }
+      })
 
     const dto = GetOrderByIdDto.fromModel(order, items);
     return dto;
