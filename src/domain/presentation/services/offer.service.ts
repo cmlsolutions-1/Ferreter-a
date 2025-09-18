@@ -14,9 +14,9 @@ export class OfferService {
 
 
     public constructor(
-            private readonly productService: ProductService
-        ) {
-        }
+        private readonly productService: ProductService
+    ) {
+    }
 
     public async createOffer(createOfferDto: CreateOfferDto) {
         let {
@@ -33,11 +33,12 @@ export class OfferService {
 
         const existOffer = await OfferModel.findOne({ name });
         if (existOffer) throw CustomError.badRequest('Ya existe una oferta con ese nombre');
-        if(typePackage == 'master') 
-            minimumQuantity = 1; 
+        if (typePackage == 'master')
+            minimumQuantity = 1;
 
-        console.log('productIds', productIds);
-        this.productService.validateProductsExist(productIds);
+        if (!isAll) {
+            this.productService.validateProductsExist(productIds);
+        }
 
         try {
             const offer = new OfferModel({

@@ -35,7 +35,9 @@ export class ProductController {
   listProducts = async (req: Request, res: Response, next: NextFunction) => {
 
     try {
-      const products = await this.productService.listProducts();
+      const { _id } = req.params;
+      const { priceCategory, role } = req.body.user!;
+      const products = await this.productService.listProducts({ priceCategory, role });
       return res.status(200).json(products);
     } catch (error) {
       next(error);

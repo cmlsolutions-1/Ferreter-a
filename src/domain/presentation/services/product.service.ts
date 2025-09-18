@@ -99,7 +99,7 @@ export class ProductService {
     }
 
 
-    public async listProducts(): Promise<ListProductDto[]> {
+    public async listProducts(info: any): Promise<ListProductDto[]> {
         try {
             const products = await ProductModel.find()
                 .populate('prices.PriceCategory', 'code')
@@ -115,7 +115,7 @@ export class ProductService {
                 image: product.image ?? null,
             }));
 
-            const filteredProductos = this.filterByPriceCategory(safeProducts, null);
+            const filteredProductos = this.filterByPriceCategory(safeProducts, info);
 
             return ListProductDto.fromModelArray(filteredProductos);
         } catch (error) {
