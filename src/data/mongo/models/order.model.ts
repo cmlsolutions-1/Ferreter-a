@@ -1,5 +1,17 @@
 import mongoose, { Schema } from 'mongoose';
 
+const appliedOfferSchema = new Schema(
+  {
+    offerId: { type: Schema.Types.ObjectId, ref: "Offer" },
+    name: { type: String, required: true },
+    percentage: { type: Number, required: true },
+    typePackage: { type: String, enum: ["master", "inner"], required: true },
+    minimumQuantity: { type: Number, required: true },
+    product: { type: Schema.Types.ObjectId, ref: "Product" },
+  },
+  { _id: false } 
+);
+
 
 const orderSchema = new mongoose.Schema({
 
@@ -12,6 +24,7 @@ const orderSchema = new mongoose.Schema({
     total: {
         type: Number,
     },
+    discounts: { type: Number },
     isPaid: {
         type: Boolean
     },
@@ -35,7 +48,8 @@ const orderSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }
+    },
+      offers: [appliedOfferSchema]
 });
 
 

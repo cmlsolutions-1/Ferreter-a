@@ -4,6 +4,8 @@ import { OfferService } from '../services/offer.service';
 import { ProductService } from '../services/product.service';
 import { CategoryService } from '../services/category.service';
 import { PriceCategoryService } from '../services/price.category.service';
+import { AuthMiddleware } from '../middlewares/auth.middleware';
+import { hasRole } from '../middlewares/role.middelware';
 
 export class OfferRoutes {
 
@@ -16,11 +18,11 @@ export class OfferRoutes {
         const productService = new ProductService(subCategoryService, priceCategoryService);
         const offerController = new OfferController(new OfferService(productService));
 
-        router.post('/', offerController.createOffer);
-        router.put('/:id', offerController.updateOffer);
-        router.get('/', offerController.listOffers);
-        router.get('/:id', offerController.getOfferById);
-        router.post('/inactive/:id', offerController.inactivateOffer);
+        router.post('/', [AuthMiddleware.validateJWT, hasRole('Admin')], offerController.createOffer);
+        router.put('/:id', [AuthMiddleware.validateJWT, hasRole('Admin')], offerController.updateOffer);
+        router.get('/', [AuthMiddleware.validateJWT, hasRole('Admin')], offerController.listOffers);
+        router.get('/:id', [AuthMiddleware.validateJWT, hasRole('Admin')], offerController.getOfferById);
+        router.post('/inactive/:id', [AuthMiddleware.validateJWT, hasRole('Admin')], offerController.inactivateOffer);
 
         return router;
     }

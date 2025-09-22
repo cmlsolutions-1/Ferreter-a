@@ -9,7 +9,8 @@ export class GetOrderByClientDto {
     public isPaid: boolean,
     public paymendDate: Date | null,
     public createdDate: Date,
-    public items: OrderItemDto[]
+    public items: OrderItemDto[],
+    public offers?: any[]
   ) {}
 
   static fromModel(order: any, items: any[]): GetOrderByClientDto {
@@ -21,7 +22,8 @@ export class GetOrderByClientDto {
       order.isPaid,
       order.paymendDate ?? null,
       order.createdDate,
-      OrderItemDto.fromModelArray(items)
+      OrderItemDto.fromModelArray(items),
+      order.offers ?? []
     );
   }
 }

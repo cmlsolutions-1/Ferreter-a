@@ -51,10 +51,6 @@ export class EmailService {
         html: htmlBody,
         attachments: attachements,
       });
-
-      console.log( 'Email sent information:' );
-      console.log( sentInformation );
-
       return true;
     } catch ( error ) {
       console.log(error);

@@ -1,17 +1,19 @@
 export class UpdateOfferDto {
   private constructor(
+    public name?: string,
     public percentage?: number,
     public minimumQuantity?: number,
     public startDate?: Date,
     public endDate?: Date,
-    public typePackage?: 'master' | 'mount',
+    public typePackage?: 'master' | 'inner',
     public state?: 'Active' | 'Inactive',
     public isAll?: boolean,
-    public productIds?: string[],
+    public products?: string[],
   ) {}
 
   static create(object: { [key: string]: any }): [string?, UpdateOfferDto?] {
     const {
+      name,
       percentage,
       minimumQuantity,
       startDate,
@@ -19,10 +21,10 @@ export class UpdateOfferDto {
       typePackage,
       state,
       isAll,
-      productIds,
+      products,
     } = object;
 
-    const allowedTypePackages = ['master', 'mount'];
+    const allowedTypePackages = ['inner', 'mount'];
     const allowedStates = ['Active', 'Inactive'];
 
     let parsedStartDate: Date | undefined;
@@ -39,20 +41,21 @@ export class UpdateOfferDto {
     }
 
     if (typePackage && !allowedTypePackages.includes(typePackage)) {
-      return ['El campo "typePackage" debe ser "master" o "mount"'];
+      return ['El campo "typePackage" debe ser "master" o "inner"'];
     }
 
     if (state && !allowedStates.includes(state)) {
       return ['El campo "state" debe ser "Active" o "Inactive"'];
     }
 
-    if (isAll === false && (!productIds || !Array.isArray(productIds) || productIds.length === 0)) {
+    if (isAll === false && (!products || !Array.isArray(products) || products.length === 0)) {
       return ['Debes proporcionar productos si "isAll" es false'];
     }
 
     return [
       undefined,
       new UpdateOfferDto(
+        name,
         percentage,
         minimumQuantity,
         parsedStartDate,
@@ -60,7 +63,7 @@ export class UpdateOfferDto {
         typePackage,
         state,
         isAll,
-        productIds
+        products
       )
     ];
   }

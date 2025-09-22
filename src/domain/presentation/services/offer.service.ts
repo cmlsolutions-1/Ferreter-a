@@ -9,6 +9,7 @@ import { InactivateOfferDto } from '../../dtos/offer/inactive-offer.dto';
 import mongoose from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { ProductService } from './product.service';
+import { ProductModel } from '../../../data/mongo/models/product.model';
 
 export class OfferService {
 
@@ -66,17 +67,13 @@ export class OfferService {
 
 
     public async updateOffer(offerId: string, updateOfferDto: UpdateOfferDto) {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-
         try {
-            const offer = await OfferModel.findOne({ id: offerId }).session(session);
+            const offer = await OfferModel.findById(offerId);
             if (!offer) throw CustomError.notFound('Oferta no encontrada');
 
-
             const updatableFields: (keyof UpdateOfferDto)[] = [
-                'percentage', 'minimumQuantity', 'startDate',
-                'endDate', 'typePackage', 'state', 'isAll'
+                'name', 'percentage', 'minimumQuantity', 'startDate',
+                'endDate', 'typePackage', 'state', 'isAll', 'products'
             ];
 
             for (const field of updatableFields) {
@@ -85,37 +82,17 @@ export class OfferService {
                 }
             }
 
-            await offer.save({ session });
-
-
-            if (updateOfferDto.isAll === false) {
-
-                await offerProductModel.deleteMany({ idOffer: offer._id }).session(session);
-
-
-                const newProducts = updateOfferDto.productIds!.map(productId => ({
-                    id: uuid(),
-                    idOffer: offer._id,
-                    idProduct: productId,
-                }));
-
-                await offerProductModel.insertMany(newProducts, { session });
-            }
-
-            await session.commitTransaction();
-            session.endSession();
+            await offer.save();
 
             return {
                 message: 'Oferta actualizada exitosamente',
                 offer,
             };
-
         } catch (error) {
-            await session.abortTransaction();
-            session.endSession();
             throw CustomError.internalServer(`Error al actualizar la oferta: ${error}`);
         }
     }
+
 
     public async listOffers(): Promise<ListOfferDto[]> {
         try {
@@ -130,7 +107,7 @@ export class OfferService {
 
     public async getOfferById(offerId: string): Promise<GetOfferByIdDto> {
         try {
-            const offer = await OfferModel.findOne({ id: offerId }).lean();
+            const offer = await OfferModel.findOne({ _id: offerId }).lean();
             if (!offer) throw CustomError.notFound('La oferta no existe');
 
             let offerProducts: any[] = [];
@@ -150,7 +127,7 @@ export class OfferService {
 
     public async inactivateOffer(offerId: string, dto: InactivateOfferDto) {
         try {
-            const offer = await OfferModel.findOne({ id: offerId });
+            const offer = await OfferModel.findOne({ _id: offerId });
             if (!offer) throw CustomError.notFound('La oferta no existe');
             if (offer.state === dto.state) {
                 return {
@@ -171,4 +148,48 @@ export class OfferService {
         }
     }
 
+    public async validateOffersForOrder(productId: string, quantity: number): Promise<any | null> {
+        try {
+            const currentDate = new Date();
+            const product = await ProductModel.findById(productId);
+            if (!product) {
+                throw new Error("Producto no encontrado");
+            }
+
+            let offers = await OfferModel.find({
+                state: "Active",
+                startDate: { $lte: currentDate },
+                endDate: { $gte: currentDate },
+                $or: [
+                    { isAll: true },
+                    { products: productId }
+                ]
+            }).lean();
+
+            offers = offers.filter((offer) => {
+                if (offer.typePackage === "master") {
+
+                    const masterPackage = product.package.find((p) => p.typePackage.toLowerCase() === "master");
+                    if (!masterPackage) return false;
+
+                    const requiredQty = offer.minimumQuantity * masterPackage.Mount;
+                    return quantity >= requiredQty;
+                } else {
+                    return quantity >= offer.minimumQuantity;
+                }
+            });
+
+            if (offers.length === 0) {
+                return null;
+            }
+            const bestOffer = offers.reduce((prev, current) => {
+                return current.percentage > prev.percentage ? current : prev;
+            });
+
+            return bestOffer;
+        } catch (error) {
+            console.error("Error validating offers:", error);
+            throw error;
+        }
+    }
 }

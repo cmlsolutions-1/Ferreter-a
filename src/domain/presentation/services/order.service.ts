@@ -12,6 +12,7 @@ import { GetOrderByClientDto } from '../../dtos/order/get-order-by-client.dto';
 import { GetOrderByIdDto } from '../../dtos/order/get-order-by-id.dto';
 import { EmailService } from './email.service';
 import { generateOrderEmailTemplate } from '../order/templates/order-email.template';
+import { OfferService } from './offer.service';
 
 
 export class OrderService {
@@ -20,12 +21,13 @@ export class OrderService {
     private readonly userService: UserService,
     private readonly productService: ProductService,
     private readonly emailService: EmailService,
+    private readonly offerService: OfferService,
   ) {
   }
 
   public async createOrder(dto: CreateOrderDto): Promise<void> {
     const priceCategoryId = await this.userService.getPriceCategoryIdByClientId(dto.idClient);
-    const { subTotal, tax, total } = await this.getMoneyValues(priceCategoryId!, dto.orderItems);
+    const { subTotal, tax, total,discounts,offers } = await this.getMoneyValues(priceCategoryId!, dto.orderItems);
     const idSalesPerson = await this.userService.getSalesPersonIdByClientId(dto.idClient);
 
     try {
@@ -33,10 +35,12 @@ export class OrderService {
         subTotal,
         tax,
         total,
+        discounts,
         isPaid: false,
         createdDate: new Date(),
         idClient: dto.idClient,
         idSalesPerson: idSalesPerson,
+        offers
       });
 
       const orderItemDocs = dto.orderItems.map(item => ({
@@ -56,22 +60,48 @@ export class OrderService {
   }
 
 
-  private async getMoneyValues(priceCategoryId: string, orderItems: any[]): Promise<{ subTotal: number, tax: number, total: string }> {
+  private async getMoneyValues(priceCategoryId: string, orderItems: any[]): Promise<{ subTotal: number, tax: number, total: number, discounts: number, offers: any[] }> {
+    let acumTax = 0;
+    let acumSubTotal = 0;
+    let acumTotal = 0;
     let subTotal = 0;
     let tax = 0;
     let total = 0;
+    let discounts = 0;
+    let offers = [];
+    let baseByUnit = 0;
+    let taxByUnit = 0;
     for (const item of orderItems) {
       const prices = await this.productService.getPriceByCategory(item.idProduct, priceCategoryId);
-      if (!prices) throw CustomError.notFound('No se encontraron precios para el producto');
-      total += prices * item.quantity;
-      tax += prices * item.quantity * 0.19;
-      subTotal += (total - tax);
       item.price = prices;
+      if (!prices) throw CustomError.notFound('No se encontraron precios para el producto');
+      let offer = await this.offerService.validateOffersForOrder(item.idProduct, item.quantity);
+      
+      baseByUnit = prices / 1.19;
+      taxByUnit = prices - baseByUnit;
+      subTotal = baseByUnit * item.quantity;
+      tax = taxByUnit * item.quantity;
+      let discounsByItem = 0;
+      if (offer) {
+        discounsByItem = ((baseByUnit * offer.percentage) / 100) * item.quantity; 
+        discounts += (+discounsByItem.toFixed(2));
+        offers.push({
+          ...offer,
+           product: item.idProduct
+        });
+      } 
+      total = (subTotal + tax - discounsByItem);
+      acumTax += (+(tax).toFixed(2));
+      acumSubTotal += (+subTotal.toFixed(2));
+      acumTotal += (+total.toFixed(2));
+
     }
     return {
-      subTotal,
-      tax,
-      total: (subTotal + tax).toFixed(2),
+      subTotal: acumSubTotal,
+      tax: acumTax,
+      total: acumTotal,
+      discounts,
+      offers
     };
   }
   public async setOrderAsPaid(dto: UpdateOrderPaidDto): Promise<void> {
@@ -115,6 +145,7 @@ export class OrderService {
 
     const orders = await OrderModel.find({ idSalesPerson })
       .populate('idClient', 'name lastName id')
+      .populate('offers.product', 'reference description')
       .lean();
     if (!orders) throw CustomError.notFound('Este vendedor no tiene ordenes');
 
@@ -134,6 +165,8 @@ export class OrderService {
   public async getOrderByClient(idClient: string): Promise<any> {
 
     const orders = await OrderModel.find({ idClient })
+      .populate('offers.product', 'reference description')
+      .lean();
 
     if (!orders) throw CustomError.notFound('Este cliente no tiene ordenes');
 
@@ -158,7 +191,9 @@ export class OrderService {
 
   public async getAllOrder(): Promise<any> {
 
-    const orders = await OrderModel.find().lean();
+    const orders = await OrderModel.find()
+    .populate('offers.product', 'reference description')
+    .lean();
 
     if (!orders.length) throw CustomError.notFound("Este cliente no tiene órdenes");
 
@@ -184,7 +219,9 @@ export class OrderService {
 
   public async getOrderById(id: string): Promise<any> {
 
-    const order = await OrderModel.findById(id);
+    const order = await OrderModel.findById(id)
+      .populate('offers.product', 'reference description')
+      .lean();
 
     if (!order) throw CustomError.notFound('Esta orden no fue encontrada');
 

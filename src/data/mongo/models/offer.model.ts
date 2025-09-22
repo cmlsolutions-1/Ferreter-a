@@ -38,7 +38,7 @@ const offerSchema = new mongoose.Schema({
     },
     state: {
         type: String,
-        enum : ['Active', 'Inactive'],
+        enum : ['Active', 'Inactive', 'Expired'],
         default : 'Active'
     },
     isAll: {

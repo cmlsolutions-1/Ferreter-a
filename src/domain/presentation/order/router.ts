@@ -8,6 +8,7 @@ import { PriceCategoryService } from '../services/price.category.service';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { hasRole } from '../middlewares/role.middelware';
 import { EmailService } from '../services/email.service';
+import { OfferService } from '../services/offer.service';
 
 
 
@@ -28,7 +29,8 @@ export class OrderRoutes {
         const categoryPriceService = new PriceCategoryService();
 
         const productoService = new ProductService(categoryService, categoryPriceService);
-        const orderService = new OrderService(userService, productoService, emailService);
+        const offerService = new OfferService(productoService);
+        const orderService = new OrderService(userService, productoService, emailService, offerService);
         const orderController = new OrderController(orderService);
 
         
