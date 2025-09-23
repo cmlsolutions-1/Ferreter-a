@@ -28,7 +28,7 @@ export class OfferService {
             typePackage,
             isAll,
             state = 'Active',
-            productIds = [],
+            products = [],
             minimumQuantity,
         } = createOfferDto;
 
@@ -38,7 +38,7 @@ export class OfferService {
             minimumQuantity = 1;
 
         if (!isAll) {
-            this.productService.validateProductsExist(productIds);
+            this.productService.validateProductsExist(products);
         }
 
         try {
@@ -51,7 +51,7 @@ export class OfferService {
                 isAll,
                 state,
                 minimumQuantity,
-                products: isAll ? [] : productIds,
+                products: isAll ? [] : products,
             });
 
             await offer.save();

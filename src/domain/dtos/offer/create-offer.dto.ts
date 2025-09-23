@@ -7,7 +7,7 @@ export class CreateOfferDto {
     public typePackage: 'master' | 'inner',
     public isAll?: boolean,
     public state?: 'Active' | 'Inactive',
-    public productIds?: string[],
+    public products?: string[],
     public minimumQuantity?: number,
   ) {}
 
@@ -20,7 +20,7 @@ export class CreateOfferDto {
       typePackage,
       isAll,
       state,
-      productIds,
+      products,
       minimumQuantity
     } = object;
 
@@ -44,7 +44,7 @@ export class CreateOfferDto {
     }
 
     if (!isAll) {
-      if (!Array.isArray(productIds) || productIds.length === 0) {
+      if (!Array.isArray(products) || products.length === 0) {
         return ['Debe proporcionar al menos un "productId" si "isAll" es false'];
       }
     }
@@ -59,7 +59,7 @@ export class CreateOfferDto {
         typePackage,
         isAll,
         state,
-        productIds,
+        products,
         minimumQuantity,
       ),
     ];
