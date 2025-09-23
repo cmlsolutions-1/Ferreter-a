@@ -96,7 +96,7 @@ export class OfferService {
 
     public async listOffers(): Promise<ListOfferDto[]> {
         try {
-            const offers = await OfferModel.find().lean();
+            const offers = await OfferModel.find().populate('products', 'reference description').lean();
 
             return ListOfferDto.fromModelArray(offers);
 
@@ -107,18 +107,13 @@ export class OfferService {
 
     public async getOfferById(offerId: string): Promise<GetOfferByIdDto> {
         try {
-            const offer = await OfferModel.findOne({ _id: offerId }).lean();
+            const offer = await OfferModel.findOne({ _id: offerId })
+            .populate('products', 'reference description')
+            .lean();
+
             if (!offer) throw CustomError.notFound('La oferta no existe');
 
-            let offerProducts: any[] = [];
-            if (!offer.isAll) {
-                offerProducts = await offerProductModel
-                    .find({ idOffer: offer._id })
-                    .populate('idProduct')
-                    .lean();
-            }
-
-            return GetOfferByIdDto.fromModel(offer, offerProducts);
+            return GetOfferByIdDto.fromModel(offer);
 
         } catch (error) {
             throw CustomError.internalServer(`Error al obtener la oferta: ${error}`);

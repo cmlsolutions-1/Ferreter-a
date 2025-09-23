@@ -2,7 +2,8 @@ import { OfferProductDto } from "./offer-product.dto";
 
 export class GetOfferByIdDto {
   constructor(
-    public id: string,
+    public _id: string,
+    public name: string,
     public percentage: number,
     public minimumQuantity: number,
     public crationDate: Date,
@@ -12,12 +13,13 @@ export class GetOfferByIdDto {
     public typePackage: 'master' | 'mount',
     public state: 'Active' | 'Inactive',
     public isAll: boolean,
-    public products: OfferProductDto[],
+    public products: any[],
   ) {}
 
-  static fromModel(offer: any, offerProducts: any[]): GetOfferByIdDto {
+  static fromModel(offer: any): GetOfferByIdDto {
     return new GetOfferByIdDto(
-      offer.id,
+      offer._id,
+      offer.name,
       offer.percentage,
       offer.minimumQuantity,
       offer.crationDate,
@@ -27,7 +29,7 @@ export class GetOfferByIdDto {
       offer.typePackage,
       offer.state,
       offer.isAll,
-      OfferProductDto.fromModelArray(offerProducts),
+      offer.products,
     );
   }
 }

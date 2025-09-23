@@ -27,7 +27,7 @@ export class OrderService {
 
   public async createOrder(dto: CreateOrderDto): Promise<void> {
     const priceCategoryId = await this.userService.getPriceCategoryIdByClientId(dto.idClient);
-    const { subTotal, tax, total,discounts,offers } = await this.getMoneyValues(priceCategoryId!, dto.orderItems);
+    const { subTotal, tax, total, discounts, offers } = await this.getMoneyValues(priceCategoryId!, dto.orderItems);
     const idSalesPerson = await this.userService.getSalesPersonIdByClientId(dto.idClient);
 
     try {
@@ -71,35 +71,45 @@ export class OrderService {
     let offers = [];
     let baseByUnit = 0;
     let taxByUnit = 0;
+
     for (const item of orderItems) {
       const prices = await this.productService.getPriceByCategory(item.idProduct, priceCategoryId);
       item.price = prices;
       if (!prices) throw CustomError.notFound('No se encontraron precios para el producto');
       let offer = await this.offerService.validateOffersForOrder(item.idProduct, item.quantity);
-      
+
       baseByUnit = prices / 1.19;
       taxByUnit = prices - baseByUnit;
-      subTotal = baseByUnit * item.quantity;
-      tax = taxByUnit * item.quantity;
+
       let discounsByItem = 0;
       if (offer) {
-        discounsByItem = ((baseByUnit * offer.percentage) / 100) * item.quantity; 
+        discounsByItem = ((baseByUnit * offer.percentage) / 100) * item.quantity;
         discounts += (+discounsByItem.toFixed(2));
         offers.push({
           ...offer,
-           product: item.idProduct
+          product: item.idProduct
         });
-      } 
-      total = (subTotal + tax - discounsByItem);
-      acumTax += (+(tax).toFixed(2));
-      acumSubTotal += (+subTotal.toFixed(2));
-      acumTotal += (+total.toFixed(2));
+
+        subTotal = (baseByUnit * item.quantity) - discounsByItem;
+        tax = subTotal * 0.19;
+        total = (subTotal + tax);
+      }
+      else {
+
+        subTotal = baseByUnit * item.quantity;
+        tax = taxByUnit * item.quantity;
+        total = (subTotal + tax - discounsByItem);
+      }
+
+      acumTax += tax;
+      acumSubTotal += subTotal;
+      acumTotal += total;
 
     }
     return {
-      subTotal: acumSubTotal,
-      tax: acumTax,
-      total: acumTotal,
+      subTotal: +acumSubTotal.toFixed(2),
+      tax: +acumTax.toFixed(2),
+      total: +acumTotal.toFixed(2),
       discounts,
       offers
     };
@@ -192,8 +202,8 @@ export class OrderService {
   public async getAllOrder(): Promise<any> {
 
     const orders = await OrderModel.find()
-    .populate('offers.product', 'reference description')
-    .lean();
+      .populate('offers.product', 'reference description')
+      .lean();
 
     if (!orders.length) throw CustomError.notFound("Este cliente no tiene órdenes");
 

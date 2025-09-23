@@ -1,6 +1,7 @@
 export class ListOfferDto {
   constructor(
-    public id: string,
+    public _id: string,
+    public name: string,
     public percentage: number,
     public minimumQuantity: number,
     public crationDate: Date,
@@ -10,11 +11,13 @@ export class ListOfferDto {
     public typePackage: 'master' | 'mount',
     public state: 'Active' | 'Inactive',
     public isAll: boolean,
+    public products?: any[],
   ) {}
 
   static fromModel(model: any): ListOfferDto {
     return new ListOfferDto(
-      model.id,
+      model._id,
+      model.name,
       model.percentage,
       model.minimumQuantity,
       model.crationDate,
@@ -24,6 +27,7 @@ export class ListOfferDto {
       model.typePackage,
       model.state,
       model.isAll,
+      model.products
     );
   }
 
