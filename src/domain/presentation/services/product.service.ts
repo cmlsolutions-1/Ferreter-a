@@ -235,7 +235,7 @@ export class ProductService {
 
     private filterByPriceCategory(products: any | any[], info: any): any | any[] {
         const isArray = Array.isArray(products);
-        let productsList = isArray ? products : [products]; // convierto a lista para reutilizar lógica
+        let productsList = isArray ? products : [products]; 
 
         let productsReturn: any[] = products;
 

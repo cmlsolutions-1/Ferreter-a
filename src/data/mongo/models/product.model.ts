@@ -15,6 +15,11 @@ const packageSchema = new Schema({
     Mount: { type: Number, required: true }
 }, { _id: false });
 
+const brandSchema = new Schema({
+    code: { type: String },
+    name: { type: String }
+}, { _id: false });
+
 const productSchema = new mongoose.Schema({
 
     reference: {
@@ -45,11 +50,15 @@ const productSchema = new mongoose.Schema({
         type: [packageSchema]
     },
     stock: {
-        type: Number
+        type: Number,
+        default: 0
+    },
+    brand: brandSchema,
+    isActive: {
+        type: Boolean,
+        default: true
     }
-
 });
-
 
 productSchema.set('toJSON', {
     virtuals: true,
