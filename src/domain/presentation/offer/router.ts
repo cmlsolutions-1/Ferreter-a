@@ -20,7 +20,7 @@ export class OfferRoutes {
 
         router.post('/', [AuthMiddleware.validateJWT, hasRole('Admin')], offerController.createOffer);
         router.put('/:id', [AuthMiddleware.validateJWT, hasRole('Admin')], offerController.updateOffer);
-        router.get('/', [AuthMiddleware.validateJWT, hasRole('Admin')], offerController.listOffers);
+        router.get('/', [AuthMiddleware.validateJWT, hasRole('Admin', 'Client')], offerController.listOffers);
         router.get('/:id', [AuthMiddleware.validateJWT, hasRole('Admin')], offerController.getOfferById);
         router.post('/inactive/:id', [AuthMiddleware.validateJWT, hasRole('Admin')], offerController.inactivateOffer);
 

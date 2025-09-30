@@ -18,7 +18,7 @@ const SubcategorySchema = new mongoose.Schema({
 
 
 SubcategorySchema.set('toJSON', {
-    virtuals: true,
+    virtuals: false,
     versionKey: false
     // transform: function (doc, ret, options) {
     //     delete ret._id;

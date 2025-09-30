@@ -175,26 +175,33 @@ export class ProductService {
     }
 
 
-    public async filterProducts(dto: FilterProductDto, info: any): Promise<ListProductDto[]> {
+    public async filterProducts(dto: FilterProductDto, info: any): Promise<{ products: ListProductDto[], total: number }> {
         try {
             const query: any = {};
 
-            if (dto.reference) {
-                query.reference = dto.reference.trim();
+            if (dto.search) {
+                query.$or = [
+                    { reference: { $regex: dto.search.trim(), $options: 'i' } },
+                    { description: { $regex: dto.search.trim(), $options: 'i' } }
+                ];
             }
 
-            if (dto.description) {
-                query.description = { $regex: dto.description.trim(), $options: 'i' };
+            if (dto.categories && dto.categories.length > 0) {
+                query.subCategory = { $in: dto.categories };
             }
+
+            if (dto.brands && dto.brands.length > 0) {
+                query["brand.code"] = { $in: dto.brands };
+            }
+
+            const total = await ProductModel.countDocuments(query);
 
             const products = await ProductModel.find(query)
                 .populate('prices.PriceCategory', 'code')
                 .populate('image', '_id url name idCloud')
-                .populate('subCategory', '_id');
-
-            if (!products || products.length === 0) {
-                throw CustomError.notFound('No se encontraron productos con los filtros especificados');
-            }
+                .populate('subCategory', '_id')
+                .skip((dto.page - 1) * dto.limit)
+                .limit(dto.limit);
 
             const safeProducts = products.map(product => ({
                 ...product.toObject(),
@@ -203,11 +210,15 @@ export class ProductService {
 
             const filteredProductos = this.filterByPriceCategory(safeProducts, info);
 
-            return ListProductDto.fromModelArray(filteredProductos);
+            return {
+                products: ListProductDto.fromModelArray(filteredProductos),
+                total
+            };
         } catch (error) {
             throw CustomError.internalServer(`Error al filtrar los productos: ${error}`);
         }
     }
+
 
 
     public async getPriceByCategory(productId: string, priceCategoryId: string) {
@@ -235,7 +246,7 @@ export class ProductService {
 
     private filterByPriceCategory(products: any | any[], info: any): any | any[] {
         const isArray = Array.isArray(products);
-        let productsList = isArray ? products : [products]; 
+        let productsList = isArray ? products : [products];
 
         let productsReturn: any[] = products;
 

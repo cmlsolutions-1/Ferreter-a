@@ -1,24 +1,37 @@
 export class FilterProductDto {
   private constructor(
-    public reference?: string,
-    public description?: string
+    public search?: string,
+    public page: number = 1,
+    public limit: number = 10,
+    public categories?: string[],
+    public brands?: string[]
   ) {}
 
-  static create(object: { [key: string]: any }): [string?, FilterProductDto?] {
-    const { reference, description } = object;
+  static create(query: { [key: string]: any }, body: { [key: string]: any }): [string?, FilterProductDto?] {
+    const { search, page, limit } = query;
+    const { categories, brands } = body;
 
-    if (!reference && !description) {
-      return ['Debe proporcionar al menos el "reference" o el "title" para filtrar'];
+    // Validaciones básicas
+    const parsedPage = page ? parseInt(page, 10) : 1;
+    const parsedLimit = limit ? parseInt(limit, 10) : 10;
+
+    if (isNaN(parsedPage) || parsedPage < 1) {
+      return ['El parámetro "page" debe ser un número mayor a 0'];
     }
 
-    if (reference && typeof reference !== 'string') {
-      return ['El campo "reference" debe ser una cadena'];
+    if (isNaN(parsedLimit) || parsedLimit < 1) {
+      return ['El parámetro "limit" debe ser un número mayor a 0'];
     }
 
-    if (description && typeof description !== 'string') {
-      return ['El campo "title" debe ser una cadena'];
-    }
-
-    return [undefined, new FilterProductDto(reference, description)];
+    return [
+      undefined,
+      new FilterProductDto(
+        search,
+        parsedPage,
+        parsedLimit,
+        Array.isArray(categories) ? categories : [],
+        Array.isArray(brands) ? brands : []
+      )
+    ];
   }
 }

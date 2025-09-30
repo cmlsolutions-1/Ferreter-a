@@ -8,9 +8,11 @@ export const generateOrderEmailTemplate = (
   const subTotal = orderData.subTotal || 0;
   const tax = orderData.tax || 0;
   const total = orderData.total || 0;
+  const discount = orderData.discounts || 0;
+  const subTotalSinDescuentos = subTotal + discount;
 
   return `
-  <div style="max-width:800px; margin:auto; padding:20px; border:1px solid #ccc; font-family:Arial, sans-serif; font-size:14px;">
+  <div style="max-width:800px; margin:auto; padding:20px; border:1px solid #ccc; fonnt-family:Arial, sans-serif; font-size:14px;">
     
     <!-- Header con Logo -->
     <div style="text-align:center; margin-bottom:20px;">
@@ -61,6 +63,20 @@ export const generateOrderEmailTemplate = (
     </div>
     ` : ''}
 
+    <!-- Ofertas Aplicadas -->
+    ${orderData.offers && orderData.offers.length > 0 ? `
+    <div style="margin-bottom:20px; background:#e8f4f8; padding:12px; border-radius:8px; border-left:4px solid #F2B318;">
+      <h4 style="margin:0 0 10px 0;">Ofertas Aplicadas</h4>
+      ${orderData.offers.map((offer: any) => `
+        <div style="margin-bottom:8px; padding:8px; background:#fff; border-radius:4px;">
+          <strong style="color:#F2B318;">${offer.name}</strong> - ${offer.percentage}% de descuento
+          ${offer.typePackage === 'inner' && offer.minimumQuantity ?
+      `(mínimo ${offer.minimumQuantity} unidades)` : ''}
+        </div>
+      `).join('')}
+    </div>
+    ` : ''}
+
     <!-- Items -->
     <div style="margin:20px 0;">
       <h4 style="margin:0 0 10px 0;">Productos en la Orden</h4>
@@ -71,18 +87,18 @@ export const generateOrderEmailTemplate = (
             <th style="border:1px solid #ddd; padding:10px; text-align:center;">Referencia</th>
             <th style="border:1px solid #ddd; padding:10px; text-align:center;">Cantidad</th>
             <th style="border:1px solid #ddd; padding:10px; text-align:right;">Precio Unit.</th>
-            <th style="border:1px solid #ddd; padding:10px; text-align:right;">Subtotal</th>
+            <th style="border:1px solid #ddd; padding:10px; text-align:right;">Total producto</th>
           </tr>
         </thead>
         <tbody>
           ${orderData.items?.map((item: any) => {
-            const productName = item.idProduct?.description || item.idProduct?.detalle || 'Producto sin nombre';
-            const reference = item.idProduct?.reference || 'N/A';
-            const unitPrice = item.price / (item.quantity || 1);
-            const quantity = item.quantity || 0;
-            const subtotal = item.price;
+        const productName = item.idProduct?.description || item.idProduct?.detalle || 'Producto sin nombre';
+        const reference = item.idProduct?.reference || 'N/A';
+        const unitPrice = item.price;
+        const quantity = item.quantity || 0;
+        const subtotal = item.price * item.quantity;
 
-            return `
+        return `
               <tr>
                 <td style="border:1px solid #ddd; padding:8px;">
                   <div style="font-weight:600;">${productName}</div>
@@ -94,7 +110,7 @@ export const generateOrderEmailTemplate = (
                 <td style="border:1px solid #ddd; text-align:right; font-weight:600;">$${subtotal.toLocaleString('es-CO')}</td>
               </tr>
             `;
-          }).join('') || `
+      }).join('') || `
             <tr>
               <td colspan="5" style="border:1px solid #ddd; padding:20px; text-align:center; color:#666;">
                 No hay productos en esta orden.
@@ -106,32 +122,55 @@ export const generateOrderEmailTemplate = (
     </div>
 
     <!-- Totals -->
-    <div style="margin-top:20px; text-align:right;">
-      <table style="width:300px; margin-left:auto; border-collapse:collapse;">
-        <tr>
-          <td style="padding:5px; text-align:right;"><strong>No. Productos:</strong></td>
-          <td style="padding:5px; text-align:right;">${itemsInOrder === 1 ? '1 artículo' : `${itemsInOrder} artículos`}</td>
-        </tr>
-        <tr>
-          <td style="padding:5px; text-align:right;"><strong>Subtotal:</strong></td>
-          <td style="padding:5px; text-align:right;">$${subTotal.toLocaleString('es-CO')}</td>
-        </tr>
-        <tr>
-          <td style="padding:5px; text-align:right;"><strong>Impuestos (15%):</strong></td>
-          <td style="padding:5px; text-align:right;">$${tax.toLocaleString('es-CO')}</td>
-        </tr>
-        <tr style="background:#F2B318;">
-          <td style="padding:10px; text-align:right; color:#000;"><strong style="font-size:16px;">TOTAL:</strong></td>
-          <td style="padding:10px; text-align:right; color:#000;"><strong style="font-size:16px;">$${total.toLocaleString('es-CO')}</strong></td>
-        </tr>
-      </table>
-    </div>
+<div style="margin-top:20px; text-align:right;">
+  <table style="width:300px; margin-left:auto; border-collapse:collapse;">
+    <tr>
+      <td style="padding:5px; text-align:right;"><strong>No. Productos:</strong></td>
+      <td style="padding:5px; text-align:right;">
+        ${itemsInOrder === 1 ? '1 artículo' : `${itemsInOrder} artículos`}
+      </td>
+    </tr>
 
-    <!-- Footer -->
-    <div style="margin-top:30px; text-align:center; color:#999; font-size:12px;">
-      <p>Gracias por confiar en nosotros</p>
-      <p style="margin-top:5px;">Este correo es generado automáticamente</p>
-    </div>
-  </div>
-  `;
+    <tr>
+      <td style="padding:5px; text-align:right;"><strong>Subtotal:</strong></td>
+      <td style="padding:5px; text-align:right;">
+        $${subTotalSinDescuentos.toLocaleString('es-CO')}
+      </td>
+    </tr>
+
+    ${discount > 0 ? `
+      <tr>
+        <td style="padding:5px; text-align:right;"><strong>Descuento:</strong></td>
+        <td style="padding:5px; text-align:right; color:#d32f2f; font-weight:600;">
+          -$${discount.toLocaleString('es-CO')}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:5px; text-align:right;"><strong>Subtotal con descuento:</strong></td>
+        <td style="padding:5px; text-align:right;">
+          $${subTotal.toLocaleString('es-CO')}
+        </td>
+      </tr>
+    ` : ''}
+
+    <tr>
+      <td style="padding:5px; text-align:right;"><strong>Impuestos (15%):</strong></td>
+      <td style="padding:5px; text-align:right;">
+        $${tax.toLocaleString('es-CO')}
+      </td>
+    </tr>
+
+    <tr style="background:#F2B318;">
+      <td style="padding:10px; text-align:right; color:#000;">
+        <strong style="font-size:16px;">TOTAL:</strong>
+      </td>
+      <td style="padding:10px; text-align:right; color:#000;">
+        <strong style="font-size:16px;">
+          $${total.toLocaleString('es-CO')}
+        </strong>
+      </td>
+    </tr>
+  </table>
+</div>
+`;
 };

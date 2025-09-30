@@ -5,7 +5,7 @@ import { UpdateProductDto } from '../../dtos/product/update-product';
 import { FilterProductDto } from '../../dtos/product/filter-product.dto';
 
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(private readonly productService: ProductService) { }
 
   createProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -59,7 +59,7 @@ export class ProductController {
     try {
       const { categoryId } = req.params;
 
-      const { priceCategory, role } = req.body.user!; 
+      const { priceCategory, role } = req.body.user!;
       const products = await this.productService.getProductsByCategory(categoryId, { priceCategory, role });
       return res.status(200).json(products);
     } catch (error) {
@@ -69,15 +69,23 @@ export class ProductController {
 
   filterProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const [err, dto] = FilterProductDto.create(req.query);
+      const [err, dto] = FilterProductDto.create(req.query, req.body);
       if (err) return res.status(400).json({ error: true, message: err });
 
-      const { priceCategory, role } = req.body.user!; 
+      const { priceCategory, role } = req.body.user!;
 
-      const products = await this.productService.filterProducts(dto!, { priceCategory, role } );
-      return res.status(200).json(products);
+      const { products, total } = await this.productService.filterProducts(dto!, { priceCategory, role });
+
+      return res.status(200).json({
+        total,
+        page: dto!.page,
+        limit: dto!.limit,
+        totalPages: Math.ceil(total / dto!.limit),
+        products
+      });
     } catch (error) {
       next(error);
     }
   };
+
 }

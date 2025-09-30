@@ -11,6 +11,7 @@ import { PriceCategoryRoutes } from './priceCategory/router';
 import { StockController } from './stock/controller';
 import { StockRoutes } from './stock/router';
 import { UploadRoutes } from './images/router';
+import { BrandRoutes } from './brand/router';
 
 
 
@@ -30,6 +31,7 @@ export class AppRoutes {
     router.use('/api/price-category', PriceCategoryRoutes.routes);
     router.use('/api/stock', StockRoutes.routes);
     router.use("/api/upload", UploadRoutes.routes);
+    router.use('/api/brands', BrandRoutes.routes);
     return router;
   }
 }
