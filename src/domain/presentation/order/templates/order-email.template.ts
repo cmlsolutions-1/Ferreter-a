@@ -154,7 +154,7 @@ export const generateOrderEmailTemplate = (
     ` : ''}
 
     <tr>
-      <td style="padding:5px; text-align:right;"><strong>Impuestos (15%):</strong></td>
+      <td style="padding:5px; text-align:right;"><strong>Impuestos (19%):</strong></td>
       <td style="padding:5px; text-align:right;">
         $${tax.toLocaleString('es-CO')}
       </td>

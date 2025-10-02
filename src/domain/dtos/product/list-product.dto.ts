@@ -12,6 +12,7 @@ export class ListProductDto {
     public precios: ProductPriceDto[],
     public packages: ProductPackageDto[],
     public stock: number,
+    public brand?: any,
   ) {}
 
   static fromModel(model: any): ListProductDto {
@@ -25,6 +26,7 @@ export class ListProductDto {
       ProductPriceDto.fromModelArray(model.prices || []),
       ProductPackageDto.fromModelArray(model.package || []),
       model.stock || 0,
+      model.brand || null,
     );
   }
 

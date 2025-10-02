@@ -189,8 +189,10 @@ export class ProductService {
             if (dto.categories && dto.categories.length > 0) {
                 query.subCategory = { $in: dto.categories };
             }
+            console.log('dto', dto);
 
             if (dto.brands && dto.brands.length > 0) {
+                console.log('Filtrando por marcas:', dto.brands);
                 query["brand.code"] = { $in: dto.brands };
             }
 
@@ -201,6 +203,7 @@ export class ProductService {
                 .populate('image', '_id url name idCloud')
                 .populate('subCategory', '_id')
                 .skip((dto.page - 1) * dto.limit)
+                .sort({ description: 1 })
                 .limit(dto.limit);
 
             const safeProducts = products.map(product => ({

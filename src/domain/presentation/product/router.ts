@@ -18,7 +18,7 @@ export class ProductRoutes {
     router.post('/', productController.createProduct);
     router.put('/:reference', productController.updateProduct);
     router.get('/', [AuthMiddleware.validateJWT], productController.listProducts);
-    router.get('/filter', [AuthMiddleware.validateJWT], productController.filterProducts);
+    router.post('/filter', [AuthMiddleware.validateJWT], productController.filterProducts);
     router.get('/:_id', [AuthMiddleware.validateJWT], productController.getProductById);
     router.get('/category/:categoryId', [AuthMiddleware.validateJWT], productController.getProductsByCategory);
 
