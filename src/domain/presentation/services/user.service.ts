@@ -29,7 +29,6 @@ export class UserService {
             if (dto.lastName !== undefined) user.lastName = dto.lastName;
 
             if (dto.email) {
-                console.log('Updating user email:', dto.email);
                 user.set('email', dto.email.map(e => ({
                     EmailAddres: e.EmailAddres,
                     IsPrincipal: e.IsPrincipal,
@@ -80,7 +79,7 @@ export class UserService {
             // .populate('city', '_id')
             .populate('salesPerson', '_id')
             .populate('clients', '_id')
-        // .populate('priceCategory', '_id');
+            .populate('priceCategory', 'code name');
 
         if (!user) throw CustomError.notFound('Usuario no encontrado');
 
@@ -89,23 +88,27 @@ export class UserService {
 
     public async getAllUsers(): Promise<ListUserDto[]> {
         // const users = await UserModel.find().populate('city', '_id');
-        const users = await UserModel.find({ state: "Active" });
+        const users = await UserModel.find({ state: "Active" })
+         .populate('priceCategory', 'code name');
 
         return ListUserDto.fromModelArray(users);
     }
 
     public async getClientsBySalesPersonId(salesPersonId: string): Promise<GetClientsBySalesPersonDto[]> {
 
-        const seller = await UserModel.findOne({ _id: salesPersonId, role: 'SalesPerson', state: "Active" });
+        const seller = await UserModel.findOne({ _id: salesPersonId, role: 'SalesPerson', state: "Active" })
+        
         if (!seller) throw CustomError.notFound('Vendedor no encontrado');
 
-        const clients = await UserModel.find({ salesPerson: seller._id, role: 'Client' });
+        const clients = await UserModel.find({ salesPerson: seller._id, role: 'Client' })
+        .populate('priceCategory', 'code name');
 
         return GetClientsBySalesPersonDto.fromModelArray(clients);
     }
 
     public async getUserRole(userId: string): Promise<string> {
-        const user = await UserModel.findOne({ _id: userId, state: "Active" });
+        const user = await UserModel.findOne({ _id: userId, state: "Active" })
+        .populate('priceCategory', 'code name');;
         if (!user) throw CustomError.notFound('Usuario no encontrado');
 
         return user.role;
@@ -114,8 +117,8 @@ export class UserService {
     public async getUsersByRole(role: string): Promise<ViewUserDto[]> {
         try {
             // const users = await UserModel.find({ role }).populate('city', '_id');
-            console.log(role);
-            const users = await UserModel.find({ role, state: "Active" });
+            const users = await UserModel.find({ role, state: "Active" })
+            .populate('priceCategory', 'code name');;
             return ViewUserDto.fromModelArray(users);
         } catch (error) {
             throw CustomError.internalServer(`Error al obtener usuarios por rol: ${error}`);

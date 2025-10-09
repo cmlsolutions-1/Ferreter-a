@@ -9,6 +9,7 @@ export class ListUserDto {
     public cityId: string,
     public role: 'Admin' | 'SalesPerson' | 'Client',
     public state: 'Active' | 'Inactive',
+    public priceCategory: any | null,
   ) {}
 
   static fromModel(model: any): ListUserDto {
@@ -25,6 +26,7 @@ export class ListUserDto {
       model.city?._id?.toString() ?? model.city?.toString() ?? '',
       model.role,
       model.state,
+      model.priceCategory ?? null,
     );
   }
 

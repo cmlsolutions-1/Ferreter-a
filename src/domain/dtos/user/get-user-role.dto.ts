@@ -14,7 +14,7 @@ export class ViewUserDto {
     public role: 'Admin' | 'SalesPerson' | 'Client',
     public salesPersonId: string | null,
     public clientIds: string[],
-    public priceCategoryId: string | null,
+    public priceCategory: any | null,
     public state: 'Active' | 'Inactive',
   ) {}
 
@@ -31,7 +31,7 @@ export class ViewUserDto {
       model.role,
       model.salesPerson?._id?.toString() ?? model.salesPerson?.toString() ?? null,
       (model.clients || []).map((c: any) => c?._id?.toString() ?? c.toString()),
-      model.priceCategory?._id?.toString() ?? model.priceCategory?.toString() ?? null,
+      model.priceCategory ?? null,
       model.state,
 
     );

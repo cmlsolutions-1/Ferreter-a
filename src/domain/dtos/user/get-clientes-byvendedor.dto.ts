@@ -7,6 +7,7 @@ export class GetClientsBySalesPersonDto {
     public email: string, 
     public phone: string, 
     public state: 'Active' | 'Inactive',
+    public priceCategory: any | null,
   ) {}
 
   static fromModel(model: any): GetClientsBySalesPersonDto {
@@ -20,7 +21,8 @@ export class GetClientsBySalesPersonDto {
       model.lastName,
       principalEmail,
       principalPhone,
-      model.state
+      model.state,
+      model.priceCategory ?? null,
     );
   }
 

@@ -15,11 +15,7 @@ const priceCategorySchema = new mongoose.Schema({
 
 
 priceCategorySchema.set('toJSON', {
-    virtuals: true,
     versionKey: false
-    // transform: function (doc, ret, options) {
-    //     delete ret._id;
-    // },
 })
 
 
