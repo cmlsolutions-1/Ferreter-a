@@ -17,6 +17,9 @@ console.log("🔄 Iniciando proceso de recepción de artículos...");
 
 app.put("/SendArticulos", async (req: Request, res: Response) => {
   try {
+
+    console.log(req);
+    
     const nuevosDatos = Array.isArray(req.body) ? req.body : [req.body];
 
     for (const art of nuevosDatos) {
