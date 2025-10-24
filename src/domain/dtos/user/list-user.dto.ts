@@ -6,7 +6,7 @@ export class ListUserDto {
     public lastName: string,
     public email: string, // principal
     public phone: string, // principal
-    public cityId: string,
+    public city: any | null,
     public role: 'Admin' | 'SalesPerson' | 'Client',
     public state: 'Active' | 'Inactive',
     public priceCategory: any | null,
@@ -23,7 +23,7 @@ export class ListUserDto {
       model.lastName,
       principalEmail,
       principalPhone,
-      model.city?._id?.toString() ?? model.city?.toString() ?? '',
+      model.city ?? '',
       model.role,
       model.state,
       model.priceCategory ?? null,

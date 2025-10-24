@@ -20,6 +20,8 @@ export class UserRoutes {
     router.get('/salesPerson', [AuthMiddleware.validateJWT, hasRole('Admin')], userController.getSalesPersons);
     router.get('/client', [AuthMiddleware.validateJWT, hasRole('Admin')], userController.getClients);
     router.get('/clientsBySalesPerson/:salesPersonId', [AuthMiddleware.validateJWT, hasRole('Admin', 'SalesPerson')], userController.getClientsBySalesPerson);
+    router.get('/departments', userController.getDepartments);
+    router.get('/cities/:departmentId', userController.getCities);
 
     return router;
   }

@@ -80,4 +80,24 @@ export class UserController {
       next(error);
     }
   };
+
+  getDepartments = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const departments = await this.userService.getDepartments();
+      return res.status(200).json(departments);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+   getCities = async (req: Request, res: Response, next: NextFunction) => {
+    
+    try {
+      const { departmentId } = req.params;
+      const cities = await this.userService.getCities(departmentId);
+      return res.status(200).json(cities);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

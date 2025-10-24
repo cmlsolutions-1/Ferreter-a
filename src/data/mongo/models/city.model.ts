@@ -3,25 +3,15 @@ import mongoose, { Schema } from 'mongoose';
 
 const citySchema = new mongoose.Schema({
 
-    id: {
-
-        type: String,
-        required: [true, 'Id is required'],
-        unique: true
-    },
-    country: {
+    department: {
         type: Schema.Types.ObjectId,
-        ref: 'Country',
+        ref: 'Department',
         required: true
     },
     name: {
         type: String,
         required: [true, 'Name is required'],
-    },
-    postalCode: {
-        type: String,
-        required: [true, 'PostalCode is required'],
-    },
+    }
 });
 
 

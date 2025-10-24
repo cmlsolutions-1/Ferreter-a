@@ -33,7 +33,6 @@ export class UploadController {
 
             res.status(200).json({ uploads: uploadedResults });
         } catch (error) {
-            console.log("Euuu");
             next(error);
         }
     };
