@@ -108,8 +108,8 @@ export class OfferService {
     public async getOfferById(offerId: string): Promise<GetOfferByIdDto> {
         try {
             const offer = await OfferModel.findOne({ _id: offerId })
-            .populate('products', 'reference description')
-            .lean();
+                .populate('products', 'reference description')
+                .lean();
 
             if (!offer) throw CustomError.notFound('La oferta no existe');
 
@@ -185,6 +185,25 @@ export class OfferService {
         } catch (error) {
             console.error("Error validating offers:", error);
             throw error;
+        }
+    }
+
+    public async expireOffers() {
+        try {
+
+            const now = new Date();
+
+            const expired = await OfferModel.updateMany(
+                {
+                    state: { $ne: "Expired" },
+                    endDate: { $lt: now },
+                },
+                {
+                    $set: { state: "Expired", finishDate: now },
+                }
+            );
+        } catch (error) {
+            throw CustomError.internalServer(`Error al expirar ofertas: ${error}`);
         }
     }
 }

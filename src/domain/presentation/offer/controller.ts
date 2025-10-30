@@ -63,4 +63,15 @@ export class OfferController {
       next(error);
     }
   };
+
+  offersExpired = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      
+      const result = await this.offerService.expireOffers();
+
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

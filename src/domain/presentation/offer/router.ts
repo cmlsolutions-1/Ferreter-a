@@ -23,6 +23,7 @@ export class OfferRoutes {
         router.get('/', [AuthMiddleware.validateJWT, hasRole('Admin', 'Client')], offerController.listOffers);
         router.get('/:id', [AuthMiddleware.validateJWT, hasRole('Admin')], offerController.getOfferById);
         router.post('/inactive/:id', [AuthMiddleware.validateJWT, hasRole('Admin')], offerController.inactivateOffer);
+        router.get('/offers-expired', [AuthMiddleware.verifyApiKey], offerController.offersExpired );
 
         return router;
     }

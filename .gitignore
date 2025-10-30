@@ -1,3 +1,55 @@
-/dist
+# 🧱 Dependencias
 /node_modules
+/.pnp
+.pnp.js
+
+# 🏗️ Builds
+/dist
 /build
+
+# ⚙️ Entorno
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# 🖼️ Imágenes y archivos subidos
+/images
+/uploads
+/assets/images
+/public/uploads
+/tmp
+
+# 🖼️ Scripts e imágenes locales
+/src/scripts/
+/src/scripts/**
+/src/scripts/imagenes/
+/src/scripts/imagenes/**
+
+
+# 🧪 Logs y debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 💾 Datos locales
+*.sqlite
+*.db
+*.log
+
+# 📦 Sistema
+.DS_Store
+Thumbs.db
+
+# 🧰 IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 🚀 Railway y otras plataformas
+.vercel/
+.netlify/

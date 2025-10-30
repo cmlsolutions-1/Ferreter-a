@@ -43,6 +43,21 @@ export class AuthMiddleware {
 
   }
 
+  static async verifyApiKey(req: Request, res: Response, next: NextFunction)  {
+
+    try {
+      const clientKey = req.header("x-api-key");
+      const serverKey = process.env.API_KEY;
+
+      if( !clientKey || clientKey !== serverKey){
+        throw CustomError.unauthorized('No autorizado');
+      }
+      next();
+    } catch (error) {
+      
+      next(error);
+    }
+  }
 }
 
 

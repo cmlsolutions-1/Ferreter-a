@@ -25,6 +25,4 @@ export class UserRoutes {
 
     return router;
   }
-
-
 }
