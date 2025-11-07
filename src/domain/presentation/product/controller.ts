@@ -35,10 +35,10 @@ export class ProductController {
 
   updateMaster = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { reference } = req.params;
+      const { _id } = req.params;
       const [err, dto] = UpdateMasterDto.create(req.body);
       if (err) return res.status(400).json({ error: true, message: err });
-      const result = await this.productService.updateMaster(reference, dto!);
+      const result = await this.productService.updateMaster(_id, dto!);
       return res.status(200).json(result);
     } catch (error) {
       next(error);
