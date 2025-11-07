@@ -18,6 +18,7 @@ export class SysCafeService {
     public async registerArticles(articles: any[]) {
         try {
             const nuevosDatos = Array.isArray(articles) ? articles : [articles];
+            const fechaSincronizacion = new Date();
 
             for (const art of nuevosDatos) {
                 const pricesWithIds = [];
@@ -56,6 +57,7 @@ export class SysCafeService {
                     },
                     prices: pricesWithIds,
                     subCategory: new mongoose.Types.ObjectId(art.subCategory ?? undefined),
+                    UpdateDate: fechaSincronizacion
                 };
 
                 await ProductModel.findOneAndUpdate(
@@ -64,6 +66,12 @@ export class SysCafeService {
                     { upsert: true, new: true }
                 );
             }
+
+            await ProductModel.updateMany(
+                { UpdateDate: { $ne: fechaSincronizacion } },
+                { $set: { isActive: false } }
+            );
+
 
             return { message: '✅ Datos procesados correctamente' };
         } catch (error) {

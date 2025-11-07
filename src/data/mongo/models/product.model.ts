@@ -57,6 +57,9 @@ const productSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    UpdateDate: {
+        type: Date,
     }
 });
 

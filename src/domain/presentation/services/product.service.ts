@@ -103,7 +103,9 @@ export class ProductService {
     public async updateMaster(_id: string, dto: UpdateMasterDto) {
 
         try {
-            const product = await ProductModel.findById(_id);
+
+            const product = await ProductModel.findOne({ _id, isActive: true });
+
             if (!product) {
                 throw CustomError.notFound('Producto no encontrado');
             }
@@ -131,7 +133,7 @@ export class ProductService {
 
         try {
             const product = await ProductModel.findByIdAndUpdate(
-                _id,
+                {_id, isActive: true},
                 { $set: { subCategory: dto.category } },
                 { new: true }
             ).populate('subCategory');
@@ -153,7 +155,7 @@ export class ProductService {
 
     public async listProducts(info: any): Promise<ListProductDto[]> {
         try {
-            const products = await ProductModel.find()
+            const products = await ProductModel.find({ isActive: true })
                 .populate('prices.PriceCategory', 'code')
                 .populate('image', '_id url name idCloud')
                 .populate('subCategory', '_id');
@@ -179,7 +181,7 @@ export class ProductService {
 
     public async getProductById(_id: string, info: any): Promise<GetProductByIdDto> {
         try {
-            const product = await ProductModel.findOne({ _id })
+            const product = await ProductModel.findOne({ _id, isActive: true })
                 .populate('prices.PriceCategory', 'code')
                 .populate('image', '_id url name idCloud')
                 .populate('subCategory', '_id');
@@ -203,7 +205,7 @@ export class ProductService {
 
     public async getProductsByCategory(categoryId: string, info: any): Promise<ListProductByCategoryDto[]> {
         try {
-            const products = await ProductModel.find({ subCategory: categoryId })
+            const products = await ProductModel.find({ subCategory: categoryId, isActive: true })
                 .populate('prices.PriceCategory', 'code')
                 .populate('image', '_id url name idCloud')
                 .populate('subCategory', '_id');
@@ -228,7 +230,7 @@ export class ProductService {
 
     public async filterProducts(dto: FilterProductDto, info: any): Promise<{ products: ListProductDto[], total: number }> {
         try {
-            const query: any = {};
+            const query: any = { isActive: true };
 
             if (dto.search) {
                 query.$or = [
@@ -238,7 +240,7 @@ export class ProductService {
             }
 
             if (dto.categories && dto.categories.length > 0) {
-                query.subCategory = { $in: dto.categories };
+                query["subCategory.name"]  = { $in: dto.categories };
             }
             console.log('dto', dto);
 
@@ -286,7 +288,7 @@ export class ProductService {
     }
 
     public async validateProductsExist(productIds: string[]) {
-        const products = await ProductModel.find({ _id: { $in: productIds } }).select('_id').lean();
+        const products = await ProductModel.find({ _id: { $in: productIds }, isActive: true }).select('_id').lean();
         const foundProductIds = products.map(p => p._id.toString());
 
         const missingProductIds = productIds.filter(id => !foundProductIds.includes(id));
