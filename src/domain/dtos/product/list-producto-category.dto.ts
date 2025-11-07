@@ -7,10 +7,10 @@ export class ListProductByCategoryDto {
         public referencia: string,
         public codigo: string,
         public detalle: string,
-        public subgategoryId: string,
+        public subgategory: any,
         public image: ImageDto | null,
         public precios: ProductPriceDto[],
-        public packages: ProductPackageDto[],
+        public packages: any[],
         public stock: number,
   ) {}
 
@@ -20,10 +20,10 @@ export class ListProductByCategoryDto {
       model.reference,
       model.code,
       model.description,
-      model.subCategory?.toString() ?? '',
+      model.subCategory ?? null,
       model.image ? ImageDto.fromModel(model.image) : null,
       ProductPriceDto.fromModelArray(model.prices || []),
-      ProductPackageDto.fromModelArray(model.package || []),
+      model.package,
       model.stock || 0,
     );
   }

@@ -11,6 +11,8 @@ import { CategoryService } from './category.service';
 import { PriceCategoryModel } from '../../../data/mongo/models/priceCategory.model';
 import { privateDecrypt } from 'crypto';
 import { PriceCategoryService } from './price.category.service';
+import { UpdateMasterDto } from '../../dtos/product/update-master.dto';
+import { UpdateCategoryDto } from '../../dtos/product/update-category.dto';
 
 
 export class ProductService {
@@ -98,6 +100,56 @@ export class ProductService {
         }
     }
 
+    public async updateMaster(_id: string, dto: UpdateMasterDto) {
+
+        try {
+            const product = await ProductModel.findById(_id);
+            if (!product) {
+                throw CustomError.notFound('Producto no encontrado');
+            }
+
+            const masterPackage = product.package.find(p => p.typePackage === 'Master');
+
+            if (masterPackage) {
+
+                masterPackage.Mount = dto.mount!;
+            } else {
+                product.package.push({ typePackage: 'Master', Mount: dto.mount });
+            }
+            await product.save();
+            return {
+                message: 'Producto actualizado correctamente',
+                product: product.toJSON(),
+            };
+        } catch (err) {
+            console.error(err);
+            throw CustomError.internalServer(`Error al actualizar el paquete master: ${err}`);
+        }
+    }
+
+    public async updateCategory(_id: string, dto: UpdateCategoryDto) {
+
+        try {
+            const product = await ProductModel.findByIdAndUpdate(
+                _id,
+                { $set: { subCategory: dto.category } },
+                { new: true }
+            ).populate('subCategory');
+
+            if (!product) {
+                throw CustomError.notFound('Producto no encontrado');
+            }
+
+            return {
+                message: 'Producto actualizado correctamente',
+                product: product,
+            };
+        } catch (err) {
+            console.error(err);
+            throw CustomError.internalServer(`Error al actualizar el paquete master: ${err}`);
+        }
+    }
+
 
     public async listProducts(info: any): Promise<ListProductDto[]> {
         try {
@@ -160,7 +212,6 @@ export class ProductService {
                 throw CustomError.notFound('No se encontraron productos para esta categoría');
             }
 
-            // Normalizar productos (image siempre presente aunque sea null)
             const safeProducts = products.map(product => ({
                 ...product.toObject(),
                 image: product.image ?? null,
@@ -221,9 +272,6 @@ export class ProductService {
             throw CustomError.internalServer(`Error al filtrar los productos: ${error}`);
         }
     }
-
-
-
     public async getPriceByCategory(productId: string, priceCategoryId: string) {
         const product = await ProductModel.findById(productId)
             .select('prices')

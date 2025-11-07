@@ -10,9 +10,9 @@ export class GetProductByIdDto {
     public codigo: string,
     public detalle: string,
     public image: ImageDto | null,
-    public subCategory: string,
+    public subCategory: any,
     public precios: ProductPriceDto[],
-    public packages: ProductPackageDto[],
+    public packages: any[],
     public stock: number,
   ) {}
 
@@ -23,9 +23,9 @@ export class GetProductByIdDto {
       model.code,
       model.description,
       model.image ? ImageDto.fromModel(model.image) : null,
-      model.subCategory?._id?.toString() ?? model.subCategory?.toString() ?? '',
+      model.subCategory ?? null,
       ProductPriceDto.fromModelArray(model.prices || []),
-      ProductPackageDto.fromModelArray(model.package || []),
+      model.package || [],
       model.stock || 0,
     );
   }

@@ -1,12 +1,12 @@
 export class ListCategoryDto {
   constructor(
-    public idCategory: string,
+    public _id: string,
     public name: string,
   ) {}
 
   static fromModel(model: any): ListCategoryDto {
     return new ListCategoryDto(
-      model.idCategory,
+      model._id,
       model.name,
     );
   }

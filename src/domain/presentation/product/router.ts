@@ -17,6 +17,8 @@ export class ProductRoutes {
 
     router.post('/', productController.createProduct);
     router.put('/:reference', productController.updateProduct);
+    router.put('/update-master/:_id', productController.updateMaster);
+    router.put('/update-category/:_id', productController.updateCategory);
     router.get('/', [AuthMiddleware.validateJWT], productController.listProducts);
     router.post('/filter', [AuthMiddleware.validateJWT], productController.filterProducts);
     router.get('/:_id', [AuthMiddleware.validateJWT], productController.getProductById);

@@ -1,3 +1,4 @@
+import { BrandModel } from "../../../data/mongo/models/brand.model";
 import { ProductModel } from "../../../data/mongo/models/product.model";
 import { CustomError } from "../../errors/custom.errors";
 import { PriceCategoryService } from "./price.category.service";
@@ -10,12 +11,11 @@ export class SysCafeService {
 
     public constructor(
         private readonly priceCategoryService: PriceCategoryService,
-        private readonly stockService : StockService
+        private readonly stockService: StockService
     ) {
     }
 
     public async registerArticles(articles: any[]) {
-
         try {
             const nuevosDatos = Array.isArray(articles) ? articles : [articles];
 
@@ -27,6 +27,7 @@ export class SysCafeService {
                         console.warn(`⚠️ No se encontró PriceCategory con código ${price.precio}`);
                         continue;
                     }
+
                     pricesWithIds.push({
                         PriceCategory: categoryId,
                         Value: price.valor,
@@ -34,14 +35,24 @@ export class SysCafeService {
                     });
                 }
 
+                const brandCode = art.marca?.codigo || '';
+                const brandName = art.marca?.nombre || '';
+
+                if (brandCode) {
+                    await BrandModel.findOneAndUpdate(
+                        { code: brandCode },
+                        { $set: { code: brandCode, name: brandName } },
+                        { upsert: true, new: true }
+                    );
+                }
                 const producto = {
                     reference: art.referencia,
                     code: art.codigo,
                     description: art.detalle,
                     isActive: art.activo,
                     brand: {
-                        code: art.marca?.codigo || "",
-                        name: art.marca?.nombre || "",
+                        code: brandCode,
+                        name: brandName,
                     },
                     prices: pricesWithIds,
                     subCategory: new mongoose.Types.ObjectId(art.subCategory ?? undefined),
@@ -53,11 +64,11 @@ export class SysCafeService {
                     { upsert: true, new: true }
                 );
             }
-            return { message: "✅ Datos procesados correctamente" };
 
+            return { message: '✅ Datos procesados correctamente' };
         } catch (error) {
-            console.error("❌ Error al insertar artículos:", error);
-            throw CustomError.internalServer(`Error al insertar artículos`);
+            console.error('❌ Error al insertar artículos:', error);
+            throw CustomError.internalServer('Error al insertar artículos');
         }
     }
 
