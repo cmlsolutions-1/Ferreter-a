@@ -240,9 +240,8 @@ export class ProductService {
             }
 
             if (dto.categories && dto.categories.length > 0) {
-                query["subCategory.name"]  = { $in: dto.categories };
+                query["subCategory"]  = { $in: dto.categories };
             }
-            console.log('dto', dto);
 
             if (dto.brands && dto.brands.length > 0) {
                 console.log('Filtrando por marcas:', dto.brands);
