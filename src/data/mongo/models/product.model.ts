@@ -28,12 +28,10 @@ const productSchema = new mongoose.Schema({
         unique: true,
     },
     code: {
-        type: String,
-        required: [true, 'Code is required'],
+        type: String
     },
     description: {
-        type: String,
-        required: [true, 'Description is required']
+        type: String
     },
     prices: [priceSchema],
     image: {
@@ -43,8 +41,7 @@ const productSchema = new mongoose.Schema({
 
     subCategory: {
         type: Schema.Types.ObjectId,
-        ref: 'SubCategory',
-        required: true
+        ref: 'SubCategory'
     },
     package: {
         type: [packageSchema]

@@ -244,7 +244,6 @@ export class ProductService {
             }
 
             if (dto.brands && dto.brands.length > 0) {
-                console.log('Filtrando por marcas:', dto.brands);
                 query["brand.code"] = { $in: dto.brands };
             }
 
