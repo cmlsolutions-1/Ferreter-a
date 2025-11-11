@@ -18,7 +18,8 @@ export class SysCafeService {
     public async registerArticles(articles: any[]) {
         try {
             const nuevosDatos = Array.isArray(articles) ? articles : [articles];
-            const fechaSincronizacion = new Date();
+            const ahora = new Date();
+            const fechaSincronizacion = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
 
             for (const art of nuevosDatos) {
                 const pricesWithIds = [];
