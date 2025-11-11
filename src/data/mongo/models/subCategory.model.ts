@@ -7,13 +7,6 @@ const SubcategorySchema = new mongoose.Schema({
         type: String,
         required: [true, 'Name is required'],
     },
-    idCategory: {
-        type: Schema.Types.ObjectId,
-        ref: 'Category',
-        required: true
-    }
-
-
 });
 
 
