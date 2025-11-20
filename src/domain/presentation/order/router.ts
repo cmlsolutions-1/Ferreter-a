@@ -24,7 +24,7 @@ export class OrderRoutes {
         );
 
         const router = Router();
-        const userService = new UserService();
+        const userService = new UserService(emailService);
         const categoryService = new CategoryService();
         const categoryPriceService = new PriceCategoryService();
 

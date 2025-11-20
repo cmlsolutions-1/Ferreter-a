@@ -75,6 +75,16 @@ const userSchema = new mongoose.Schema({
     emailValidated: {
         type: Boolean,
         default: false
+    },
+    resetPasswordCode:{
+        type: String,
+        default: null,
+        required: false
+    },
+    resetPasswordExpires: {
+        type: Date,
+        default: null,
+        required: false
     }
 
 });

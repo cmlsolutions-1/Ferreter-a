@@ -2,9 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../services/user.service';
 import { UpdateUserDto } from '../../dtos/user/update-user.dto';
 import { DeleteUserDto } from '../../dtos/user/delete-user.dto';
+import { regularExps } from '../../../config';
+import { CustomError } from '../../errors/custom.errors';
 
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   updateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -22,7 +24,7 @@ export class UserController {
     try {
 
       const { _id } = req.params;
-      const [err, dto] = DeleteUserDto.create( { _id });
+      const [err, dto] = DeleteUserDto.create({ _id });
       if (err) return res.status(400).json({ error: true, message: err });
 
       const result = await this.userService.deleteUser(dto!);
@@ -90,8 +92,8 @@ export class UserController {
     }
   };
 
-   getCities = async (req: Request, res: Response, next: NextFunction) => {
-    
+  getCities = async (req: Request, res: Response, next: NextFunction) => {
+
     try {
       const { departmentId } = req.params;
       const cities = await this.userService.getCities(departmentId);
@@ -100,4 +102,42 @@ export class UserController {
       next(error);
     }
   };
+
+  generateResetNumber = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+      const { email } = req.body;
+      if (!regularExps.email.test(email))
+        throw CustomError.badRequest('El correo no es válido');
+      const result = await this.userService.generateVerificationNumber(email);
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  validateVerificationCode = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, code } = req.body;
+      if (!regularExps.email.test(email))
+        throw CustomError.badRequest('El correo no es válido');
+      const result = await this.userService.validateVerificationCode(email, code);
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+      const { email, code, newPassword } = req.body;
+      if (!regularExps.email.test(email))
+        throw CustomError.badRequest('El correo no es válido');
+      const result = await this.userService.resetPassword(email, code, newPassword);
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

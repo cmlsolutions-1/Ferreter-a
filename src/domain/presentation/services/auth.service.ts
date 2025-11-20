@@ -6,6 +6,7 @@ import { RegisterUserDto } from '../../dtos/auth/register-user.dto';
 import { EmailService } from './email.service';
 import mongoose from 'mongoose';
 import { PriceCategoryService } from './price.category.service';
+import { generateVerificationCodeEmail } from '../user/templates/change-password.template';
 
 
 
@@ -170,6 +171,74 @@ export class AuthService {
             salesPerson: dto.salesPerson ? new mongoose.Types.ObjectId(dto.salesPerson) : undefined,
             // clients: dto.clients?.map(c => new mongoose.Types.ObjectId(c)) ?? [],
         };
+    }
+
+    public async generateVerificationNumber(email: string): Promise<any | null> {
+    
+            const user = await UserModel.findOne({ "email.EmailAddres": email });
+            if (!user) throw CustomError.notFound('No existe un usuario con este correo');
+    
+            const code = Math.floor(100000 + Math.random() * 900000);
+    
+            user.resetPasswordCode = code.toString();
+            user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000);
+            await user.save();
+    
+            const html = generateVerificationCodeEmail(code.toString());
+            await this.sendEmail(email, html, 'Código de Restablecimiento de Contraseña');
+            return {
+                message: 'Código de verificación generado correctamente y enviado al correo',
+                user,
+            };
+        }
+    
+        public async validateVerificationCode(email: string, code: string): Promise<any | null> {
+    
+            const user = await UserModel.findOne({
+                "email.EmailAddres": email,
+                resetPasswordCode: code,
+                resetPasswordExpires: { $gt: new Date() }
+            });
+    
+            if (!user) {
+                throw CustomError.badRequest("Código incorrecto o expirado");
+            }
+    
+            return {
+                message: 'Código de verificación válido'
+            };
+        }
+    
+        public async resetPassword(email: string, code: string, newPassword: string): Promise<any | null> {
+    
+            const user = await UserModel.findOne({
+                "email.EmailAddres": email,
+                resetPasswordCode: code,
+                resetPasswordExpires: { $gt: new Date() }
+            });
+            if (!user) {
+                throw CustomError.badRequest("Código incorrecto o expirado");
+            }
+            user.password = bcryptAdapter.hash(newPassword);
+            user.resetPasswordCode = null!;
+            user.resetPasswordExpires = null!;
+        
+            await user.save();
+    
+            return {
+                message: 'Contraseña actualizada'
+            };
+        }
+    
+        private sendEmail = async (email: string, html: string, subject: string) => {
+            const options = {
+                to: email,
+                subject,
+                htmlBody: html,
+            }
+            const isSent = await this.emailService.sendEmail(options);
+            if (!isSent) throw CustomError.internalServer('Error sending email');
+            return true;
     }
 
 }

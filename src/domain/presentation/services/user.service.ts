@@ -9,8 +9,18 @@ import mongoose from 'mongoose';
 import { ViewUserDto } from '../../dtos/user/get-user-role.dto';
 import { DepartmentModel } from '../../../data/mongo/models/department.model';
 import { CityModel } from '../../../data/mongo/models/city.model';
+import { EmailService } from './email.service';
+import { generateVerificationCodeEmail } from '../user/templates/change-password.template';
+import { bcryptAdapter } from '../../../config';
 
 export class UserService {
+
+    public constructor(
+
+        private readonly emailService: EmailService,
+
+    ) {
+    }
 
     public async updateUser(dto: UpdateUserDto) {
 
@@ -136,7 +146,7 @@ export class UserService {
     }
     public async getUsersByRole(role: string): Promise<ViewUserDto[]> {
         try {
-            
+
             const users = await UserModel.find({ role, state: "Active" })
                 .populate('priceCategory', 'code name')
                 .populate({
@@ -185,5 +195,73 @@ export class UserService {
         const cities = await CityModel.find({ department: departmentId }).lean();
         if (!cities) throw CustomError.notFound('No hay ciudades para este departamento');
         return cities;
+    }
+
+    public async generateVerificationNumber(email: string): Promise<any | null> {
+
+        const user = await UserModel.findOne({ "email.EmailAddres": email });
+        if (!user) throw CustomError.notFound('No existe un usuario con este correo');
+
+        const code = Math.floor(100000 + Math.random() * 900000);
+
+        user.resetPasswordCode = code.toString();
+        user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000);
+        await user.save();
+
+        const html = generateVerificationCodeEmail(code.toString());
+        await this.sendEmail(email, html, 'Código de Restablecimiento de Contraseña');
+        return {
+            message: 'Código de verificación generado correctamente y enviado al correo',
+            user,
+        };
+    }
+
+    public async validateVerificationCode(email: string, code: string): Promise<any | null> {
+
+        const user = await UserModel.findOne({
+            "email.EmailAddres": email,
+            resetPasswordCode: code,
+            resetPasswordExpires: { $gt: new Date() }
+        });
+
+        if (!user) {
+            throw CustomError.badRequest("Código incorrecto o expirado");
+        }
+
+        return {
+            message: 'Código de verificación válido'
+        };
+    }
+
+    public async resetPassword(email: string, code: string, newPassword: string): Promise<any | null> {
+
+        const user = await UserModel.findOne({
+            "email.EmailAddres": email,
+            resetPasswordCode: code,
+            resetPasswordExpires: { $gt: new Date() }
+        });
+        if (!user) {
+            throw CustomError.badRequest("Código incorrecto o expirado");
+        }
+        user.password = bcryptAdapter.hash(newPassword);
+        user.resetPasswordCode = null!;
+        user.resetPasswordExpires = null!;
+    
+        await user.save();
+
+        return {
+            message: 'Contraseña actualizada'
+        };
+    }
+
+    private sendEmail = async (email: string, html: string, subject: string) => {
+        const options = {
+            to: email,
+            subject,
+            htmlBody: html,
+        }
+        const isSent = await this.emailService.sendEmail(options);
+        if (!isSent) throw CustomError.internalServer('Error sending email');
+        return true;
     }
 }

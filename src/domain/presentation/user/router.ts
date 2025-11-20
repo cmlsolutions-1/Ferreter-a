@@ -3,6 +3,7 @@ import { UserController } from './controller';
 import { UserService } from '../services/user.service';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { hasRole } from '../middlewares/role.middelware';
+import { EmailService } from '../services/email.service';
 
 
 export class UserRoutes {
@@ -10,8 +11,15 @@ export class UserRoutes {
 
   static get routes() : Router {
 
+    const emailService = new EmailService(
+                        process.env.MAILER_SERVICE!,
+                        process.env.MAILER_EMAIL!,
+                        process.env.MAILER_SECRET_KEY!,
+                        process.env.SEND_EMAIL === 'true' ? true : false,
+            );
+
     const router = Router();
-    const userService = new UserService();
+    const userService = new UserService(emailService);
     const userController = new UserController(userService);
     router.put('/', [AuthMiddleware.validateJWT, hasRole('Admin')], userController.updateUser);
     router.delete('/:_id', [AuthMiddleware.validateJWT, hasRole('Admin')], userController.deleteUser); 
@@ -22,6 +30,9 @@ export class UserRoutes {
     router.get('/clientsBySalesPerson/:salesPersonId', [AuthMiddleware.validateJWT, hasRole('Admin', 'SalesPerson')], userController.getClientsBySalesPerson);
     router.get('/departments', userController.getDepartments);
     router.get('/cities/:departmentId', userController.getCities);
+    router.post('/recove', userController.generateResetNumber);
+    router.post('/validate-code', userController.validateVerificationCode);
+    router.post('/reset-password', userController.resetPassword);
 
     return router;
   }
