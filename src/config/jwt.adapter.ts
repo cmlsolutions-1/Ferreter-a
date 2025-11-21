@@ -10,7 +10,7 @@ export class JwtAdapter {
 
   // DI?
 
-  public static async generateToken( payload:any, duration=7200) {
+  public static async generateToken( payload:any, duration=86400) {
 
     return new Promise((resolve) => {
 
