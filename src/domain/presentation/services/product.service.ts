@@ -158,7 +158,7 @@ export class ProductService {
             const products = await ProductModel.find({ isActive: true })
                 .populate('prices.PriceCategory', 'code')
                 .populate('image', '_id url name idCloud')
-                .populate('subCategory', '_id');
+                .populate('subCategory', '_id name');
 
             if (!products || products.length === 0) {
                 throw CustomError.notFound('No se encontraron productos');
@@ -184,7 +184,7 @@ export class ProductService {
             const product = await ProductModel.findOne({ _id, isActive: true })
                 .populate('prices.PriceCategory', 'code')
                 .populate('image', '_id url name idCloud')
-                .populate('subCategory', '_id');
+                .populate('subCategory', '_id name');
 
             if (!product) throw CustomError.notFound('Producto no encontrado');
 
@@ -208,7 +208,7 @@ export class ProductService {
             const products = await ProductModel.find({ subCategory: categoryId, isActive: true })
                 .populate('prices.PriceCategory', 'code')
                 .populate('image', '_id url name idCloud')
-                .populate('subCategory', '_id');
+                .populate('subCategory', '_id name');
 
             if (!products || products.length === 0) {
                 throw CustomError.notFound('No se encontraron productos para esta categoría');
@@ -226,7 +226,6 @@ export class ProductService {
             throw CustomError.internalServer(`Error al obtener productos por categoría: ${error}`);
         }
     }
-
 
     public async filterProducts(dto: FilterProductDto, info: any): Promise<{ products: ListProductDto[], total: number }> {
         try {
@@ -252,7 +251,7 @@ export class ProductService {
             const products = await ProductModel.find(query)
                 .populate('prices.PriceCategory', 'code')
                 .populate('image', '_id url name idCloud')
-                .populate('subCategory', '_id')
+                .populate('subCategory', '_id name')
                 .skip((dto.page - 1) * dto.limit)
                 .sort({ description: 1 })
                 .limit(dto.limit);

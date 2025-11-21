@@ -14,6 +14,7 @@ export class GetProductByIdDto {
     public precios: ProductPriceDto[],
     public packages: any[],
     public stock: number,
+    public brand?: any,
   ) {}
 
   static fromModel(model: any): GetProductByIdDto {
@@ -27,6 +28,7 @@ export class GetProductByIdDto {
       ProductPriceDto.fromModelArray(model.prices || []),
       model.package || [],
       model.stock || 0,
+      model.brand || null,
     );
   }
 }

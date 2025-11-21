@@ -30,9 +30,6 @@ export class UserRoutes {
     router.get('/clientsBySalesPerson/:salesPersonId', [AuthMiddleware.validateJWT, hasRole('Admin', 'SalesPerson')], userController.getClientsBySalesPerson);
     router.get('/departments', userController.getDepartments);
     router.get('/cities/:departmentId', userController.getCities);
-    router.post('/recove', userController.generateResetNumber);
-    router.post('/validate-code', userController.validateVerificationCode);
-    router.post('/reset-password', userController.resetPassword);
 
     return router;
   }

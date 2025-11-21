@@ -103,41 +103,5 @@ export class UserController {
     }
   };
 
-  generateResetNumber = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-
-      const { email } = req.body;
-      if (!regularExps.email.test(email))
-        throw CustomError.badRequest('El correo no es válido');
-      const result = await this.userService.generateVerificationNumber(email);
-      return res.status(200).json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  validateVerificationCode = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { email, code } = req.body;
-      if (!regularExps.email.test(email))
-        throw CustomError.badRequest('El correo no es válido');
-      const result = await this.userService.validateVerificationCode(email, code);
-      return res.status(200).json(result);
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  resetPassword = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-
-      const { email, code, newPassword } = req.body;
-      if (!regularExps.email.test(email))
-        throw CustomError.badRequest('El correo no es válido');
-      const result = await this.userService.resetPassword(email, code, newPassword);
-      return res.status(200).json(result);
-    } catch (error) {
-      next(error);
-    }
-  }
+  
 }

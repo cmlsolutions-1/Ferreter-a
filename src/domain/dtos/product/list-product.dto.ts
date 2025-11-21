@@ -7,7 +7,7 @@ export class ListProductDto {
     public referencia: string,
     public codigo: string,
     public detalle: string,
-    public subgategory: any,
+    public subCategory: any,
     public image: ImageDto | null,
     public precios: ProductPriceDto[],
     public packages: any[],
