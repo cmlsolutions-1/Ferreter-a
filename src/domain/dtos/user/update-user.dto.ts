@@ -29,6 +29,7 @@ export class UpdateUserDto {
     public city?: string,
     public priceCategory?: string,
     public salesPerson?: string,
+    public password?: string,
   ) {}
 
   static create(object: { [key: string]: any }): [string?, UpdateUserDto?] {
@@ -44,6 +45,7 @@ export class UpdateUserDto {
       role,
       priceCategory,
       salesPerson,
+      password
     } = object;
 
     if (!_id) return ["El ID es obligatorio para actualizar el usuario"];
@@ -85,7 +87,8 @@ export class UpdateUserDto {
         address,
         city,
         priceCategory,
-        salesPerson
+        salesPerson,
+        password
       ),
     ];
   }

@@ -58,6 +58,8 @@ export class UserService {
             if (dto.address !== undefined) user.addres = dto.address;
             if (dto.city !== undefined) user.city = new mongoose.Types.ObjectId(dto.city);
             if (dto.priceCategory !== undefined) user.priceCategory = new mongoose.Types.ObjectId(dto.priceCategory);
+            if (dto.password !== undefined) user.password = bcryptAdapter.hash(dto.password);
+            if (dto.id !== undefined) user.id = dto.id;
 
             await user.save();
 
