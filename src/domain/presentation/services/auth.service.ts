@@ -35,6 +35,11 @@ export class AuthService {
             throw CustomError.badRequest('Email ya existe');
         }
 
+        const existingIdUser = await UserModel.findOne({ id: registerUserDto.id });
+        if (existingIdUser) {
+            throw CustomError.badRequest('Ya existe un usuario con esta cedula');
+        }
+
         if (registerUserDto.role === 'Client') {
             await this.priceCategoryService.getPriceCategoryById(registerUserDto.priceCategory);
             const existeSalesPerson = await UserModel.findById(registerUserDto.salesPerson);
