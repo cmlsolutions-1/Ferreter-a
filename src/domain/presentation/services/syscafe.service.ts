@@ -57,7 +57,6 @@ export class SysCafeService {
                         name: brandName,
                     },
                     prices: pricesWithIds,
-                    subCategory: new mongoose.Types.ObjectId(art.subCategory ?? undefined),
                     UpdateDate: fechaSincronizacion
                 };
 

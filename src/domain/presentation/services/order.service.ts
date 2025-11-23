@@ -195,7 +195,6 @@ export class OrderService {
         return GetOrderByClientDto.fromModel(order, items);
       })
     );
-
     return result;
   }
 
@@ -221,6 +220,7 @@ export class OrderService {
 
     const result = orders.map(order => ({
       ...order,
+      orderNumber : order.orderNumber ?? "Sin consecutivo",
       items: items.filter(i => i.idOrder.toString() === order._id.toString())
     }));
 

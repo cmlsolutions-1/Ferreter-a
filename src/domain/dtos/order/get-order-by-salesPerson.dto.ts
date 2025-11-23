@@ -11,7 +11,8 @@ export class GetOrderBySalesPersonDto {
     public createdDate: Date,
     public Client: any,
     public items: OrderItemDto[],
-    public offers?: any[]
+    public offers?: any[],
+    public orderNumber?: string
   ) {}
 
   static fromModel(order: any, items: any[]): GetOrderBySalesPersonDto {
@@ -25,7 +26,8 @@ export class GetOrderBySalesPersonDto {
       order.createdDate,
       order.idClient,
       OrderItemDto.fromModelArray(items),
-      order.offers ?? []
+      order.offers ?? [],
+      order.orderNumber ?? "Sin consecutivo"
     );
   }
 }

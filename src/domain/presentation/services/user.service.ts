@@ -78,12 +78,15 @@ export class UserService {
         const user = await UserModel.findOne({ _id: dto._id });
         if (!user) throw CustomError.notFound('Usuario no encontrado');
 
-        user.state = "Inactive";
+        if (user.state === "Inactive")
+            user.state = "Active";
+        else
+            user.state = "Inactive";
 
         await user.save();
 
         return {
-            message: `Usuario Eliminado correctamente`,
+            message: `Usuario actualizado correctamente`,
             userId: user._id,
         };
     }
@@ -248,7 +251,7 @@ export class UserService {
         user.password = bcryptAdapter.hash(newPassword);
         user.resetPasswordCode = null!;
         user.resetPasswordExpires = null!;
-    
+
         await user.save();
 
         return {

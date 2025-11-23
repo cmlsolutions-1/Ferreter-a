@@ -10,7 +10,8 @@ export class GetOrderByClientDto {
     public paymendDate: Date | null,
     public createdDate: Date,
     public items: OrderItemDto[],
-    public offers?: any[]
+    public offers?: any[],
+    public orderNumber?: string
   ) {}
 
   static fromModel(order: any, items: any[]): GetOrderByClientDto {
@@ -23,7 +24,8 @@ export class GetOrderByClientDto {
       order.paymendDate ?? null,
       order.createdDate,
       OrderItemDto.fromModelArray(items),
-      order.offers ?? []
+      order.offers ?? [],
+      order.orderNumber ?? "Sin consecutivo"
     );
   }
 }
