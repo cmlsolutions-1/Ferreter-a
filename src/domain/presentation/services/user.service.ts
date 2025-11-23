@@ -110,7 +110,7 @@ export class UserService {
     }
 
     public async getAllUsers(): Promise<ListUserDto[]> {
-        const users = await UserModel.find({ state: "Active" })
+        const users = await UserModel.find({  })
             .populate('priceCategory', 'code name')
             .populate({
                 path: 'city',
@@ -152,7 +152,7 @@ export class UserService {
     public async getUsersByRole(role: string): Promise<ViewUserDto[]> {
         try {
 
-            const users = await UserModel.find({ role, state: "Active" })
+            const users = await UserModel.find({ role })
                 .populate('priceCategory', 'code name')
                 .populate({
                     path: 'city',
