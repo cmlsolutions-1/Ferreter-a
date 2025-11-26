@@ -4,6 +4,7 @@ import { RegisterUserDto } from '../../dtos/auth/register-user.dto';
 import { LoginUserDto } from '../../dtos/auth/login-user.dto';
 import { CustomError } from '../../errors/custom.errors';
 import { regularExps } from '../../../config';
+import path from "path";
 
 export class AuthController {
 
@@ -39,8 +40,11 @@ export class AuthController {
     try {
       const { token } = req.params;
 
-      const result = await this.authService.validateEmail(token);
-      return res.status(200).json({ success: true, validated: result });
+      const filePath = path.join(process.cwd(), 'src', 'public', 'correoValidate.html');
+      return res.sendFile(filePath);
+
+      return res.sendFile(filePath);
+
     } catch (error) {
       next(error);
     }

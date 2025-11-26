@@ -25,36 +25,38 @@ export class Server {
     this.routes = routes;
   }
 
-  
-  
+
+
   async start() {
-    
+
 
     //* Middlewares
     this.app.use(cors());
-    this.app.use( express.json() ); // raw
-    this.app.use( express.urlencoded({ extended: true }) ); // x-www-form-urlencoded
+    this.app.use(express.json()); // raw
+    this.app.use(express.urlencoded({ extended: true })); // x-www-form-urlencoded
     // this.app.use( compression() )
 
     //* Public Folder
-    this.app.use( express.static( this.publicPath ) );
+    this.app.use(
+      express.static(path.join(process.cwd(), 'src', this.publicPath))
+    );
 
 
     //* Routes
-    this.app.use( this.routes );
+    this.app.use(this.routes);
 
     this.app.use(errorHandler);
 
 
     //* SPA
     this.app.get('*', (req, res) => {
-      const indexPath = path.join( __dirname + `../../../${ this.publicPath }/index.html` );
+      const indexPath = path.join(process.cwd(), 'src', this.publicPath, 'index.html');
       res.sendFile(indexPath);
     });
-    
+
 
     this.app.listen(this.port, () => {
-      console.log(`Server running on port ${ this.port }`);
+      console.log(`Server running on port ${this.port}`);
     });
 
   }
