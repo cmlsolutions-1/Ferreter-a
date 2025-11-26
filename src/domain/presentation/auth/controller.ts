@@ -40,11 +40,9 @@ export class AuthController {
     try {
       const { token } = req.params;
 
+      const result = await this.authService.validateEmail(token);
       const filePath = path.join(process.cwd(), 'src', 'public', 'correoValidate.html');
       return res.sendFile(filePath);
-
-      return res.sendFile(filePath);
-
     } catch (error) {
       next(error);
     }
