@@ -52,6 +52,8 @@ export class OrderService {
 
       await OrderItemModel.insertMany(orderItemDocs);
 
+      await this.productService.discountPlatformStock(dto.orderItems);
+
       await this.processAndSendOrderEmail(order._id.toString());
 
     } catch (error) {
@@ -114,6 +116,7 @@ export class OrderService {
       offers
     };
   }
+
   public async setOrderAsPaid(dto: UpdateOrderPaidDto): Promise<void> {
 
     const populatedOrder = await OrderModel.findOne({ _id: dto._id })
@@ -220,7 +223,7 @@ export class OrderService {
 
     const result = orders.map(order => ({
       ...order,
-      orderNumber : order.orderNumber ?? "Sin consecutivo",
+      orderNumber: order.orderNumber ?? "Sin consecutivo",
       items: items.filter(i => i.idOrder.toString() === order._id.toString())
     }));
 

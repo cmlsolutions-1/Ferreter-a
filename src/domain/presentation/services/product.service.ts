@@ -133,7 +133,7 @@ export class ProductService {
 
         try {
             const product = await ProductModel.findByIdAndUpdate(
-                {_id, isActive: true},
+                { _id, isActive: true },
                 { $set: { subCategory: dto.category } },
                 { new: true }
             ).populate('subCategory');
@@ -239,7 +239,7 @@ export class ProductService {
             }
 
             if (dto.categories && dto.categories.length > 0) {
-                query["subCategory"]  = { $in: dto.categories };
+                query["subCategory"] = { $in: dto.categories };
             }
 
             if (dto.brands && dto.brands.length > 0) {
@@ -339,6 +339,32 @@ export class ProductService {
             });
         }
         return isArray ? productsReturn : productsReturn[0];
+    }
+
+
+    public async discountPlatformStock(orderItems: { idProduct: string; quantity: number }[]) {
+        for (const item of orderItems) {
+            const product = await ProductModel.findById(item.idProduct);
+
+            if (!product) continue;
+
+            const previousPlatformStock = product.platformStock ?? 0;
+
+            // Si es la primera vez o estaba en cero, inicializar con el stock actual
+            let newPlatformStock =
+                previousPlatformStock === 0 ? product.stock : previousPlatformStock;
+
+            // Restar lo comprado
+            newPlatformStock -= item.quantity;
+
+            // Evitar negativos
+            if (newPlatformStock < 0) newPlatformStock = 0;
+
+            await ProductModel.updateOne(
+                { _id: item.idProduct },
+                { $set: { platformStock: newPlatformStock } }
+            );
+        }
     }
 
 }
