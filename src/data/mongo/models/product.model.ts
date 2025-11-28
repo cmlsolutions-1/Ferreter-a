@@ -50,6 +50,12 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+
+    platformStock: {
+        type: Number,
+        default: 0
+    },
+
     brand: brandSchema,
     isActive: {
         type: Boolean,

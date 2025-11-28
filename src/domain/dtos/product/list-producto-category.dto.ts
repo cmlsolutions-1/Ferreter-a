@@ -24,7 +24,7 @@ export class ListProductByCategoryDto {
       model.image ? ImageDto.fromModel(model.image) : null,
       ProductPriceDto.fromModelArray(model.prices || []),
       model.package,
-      model.stock || 0,
+      model.platformStock || 0,
     );
   }
 
