@@ -47,6 +47,15 @@ export class AuthController {
       next(error);
     }
   };
+  resendValidationEmail = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email } = req.body;
+      const result = await this.authService.resendValidationEmail(email);
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 
   generateResetNumber = async (req: Request, res: Response, next: NextFunction) => {
     try {

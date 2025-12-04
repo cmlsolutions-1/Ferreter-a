@@ -26,6 +26,7 @@ export class AuthRoutes {
         router.post('/register', [AuthMiddleware.validateJWT, hasRole('Admin')], authController.register);
         router.post('/login', authController.login);
         router.get('/validate-email/:token', authController.validateEmail);
+        router.post('/resend-validation-email', authController.resendValidationEmail);
         router.post('/recove', authController.generateResetNumber);
         router.post('/validate-code', authController.validateVerificationCode);
         router.post('/reset-password', authController.resetPassword);

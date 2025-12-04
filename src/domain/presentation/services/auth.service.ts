@@ -76,6 +76,23 @@ export class AuthService {
 
     }
 
+    public async resendValidationEmail(email: string) {
+        const user = await UserModel.findOne({
+            email: {
+                $elemMatch: {
+                    EmailAddres: email,
+                    IsPrincipal: true
+                }
+            }
+        });
+        if (!user) throw CustomError.notFound('Este correo no está registrado en el sistema como principal');
+        if (user.emailValidated) throw CustomError.badRequest('El correo ya ha sido validado');
+        await this.sendEmailValidationLink(email);
+        return {
+            message: 'Se ha enviado un nuevo correo de validación',
+        };
+    }
+
 
     public async loginUser(loginUserDto: LoginUserDto) {
 
