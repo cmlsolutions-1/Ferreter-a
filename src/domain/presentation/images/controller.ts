@@ -7,7 +7,9 @@ export class UploadController {
 
     upload = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            
+
+
+
             const files = req.files as Express.Multer.File[];
 
             if (!files || files.length === 0)
@@ -18,7 +20,7 @@ export class UploadController {
             for (const file of files) {
 
                 const reference = file.originalname.split(".")[0].trim();
-                
+
                 const result = await this.uploadService.uploadAndAssign(
                     file.path,
                     reference,

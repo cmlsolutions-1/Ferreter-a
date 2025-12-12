@@ -3,6 +3,7 @@ import cors from 'cors';
 // import compression from 'compression';
 import path from 'path';
 import { errorHandler } from './middlewares/errorHandler';
+ 
 
 interface Options {
   port: number;
@@ -35,6 +36,9 @@ export class Server {
     this.app.use(express.json()); // raw
     this.app.use(express.urlencoded({ extended: true })); // x-www-form-urlencoded
     // this.app.use( compression() )
+
+    
+    const app = express();
 
     //* Public Folder
     this.app.use(
