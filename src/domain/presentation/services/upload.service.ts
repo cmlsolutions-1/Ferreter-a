@@ -76,7 +76,7 @@ export class UploadService {
 
     await upload.done();
 
-    const fileUrl = `${envs.SPACES_ENDPOINT}/${envs.SPACES_BUCKET}/${key}`;
+    const fileUrl = `${envs.SPACES_URL_CDN}/${key}`;
 
     return { key, url: fileUrl };
   }

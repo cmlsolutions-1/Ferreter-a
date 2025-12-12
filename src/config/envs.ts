@@ -19,7 +19,7 @@ export const envs = {
   SPACES_SECRET: get('SPACES_SECRET').required().asString(),
   SPACES_ENDPOINT: get('SPACES_ENDPOINT').required().asString(),
   SPACES_BUCKET: get('SPACES_BUCKET').required().asString(),
-
+  SPACES_URL_CDN: get('SPACES_URL_CDN').required().asString(),
 }
 
 
