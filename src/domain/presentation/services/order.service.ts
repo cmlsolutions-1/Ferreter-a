@@ -39,7 +39,6 @@ export class OrderService {
         isPaid: false,
         createdDate: new Date(),
         idClient: dto.idClient,
-        syscafeOrder: dto.syscafeOrder,
         idSalesPerson: idSalesPerson,
         offers
       });
@@ -136,6 +135,7 @@ export class OrderService {
       client?.email?.[0]?.EmailAddres ||
       null;
     populatedOrder.isPaid = true;
+    populatedOrder.syscafeOrder = dto.syscafeOrder;
     populatedOrder.paymendDate = new Date();
     populatedOrder.updatedDate = new Date();
 
