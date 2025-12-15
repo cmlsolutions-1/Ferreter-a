@@ -37,6 +37,11 @@ const orderSchema = new mongoose.Schema({
     paymendDate: {
         type: Date,
     },
+    syscafeOrder : {
+        type: String,
+        default: ""
+    },
+    
     createdDate: {
         type: Date,
         default: Date.now

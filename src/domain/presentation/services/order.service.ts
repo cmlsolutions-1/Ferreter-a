@@ -39,6 +39,7 @@ export class OrderService {
         isPaid: false,
         createdDate: new Date(),
         idClient: dto.idClient,
+        syscafeOrder: dto.syscafeOrder,
         idSalesPerson: idSalesPerson,
         offers
       });
