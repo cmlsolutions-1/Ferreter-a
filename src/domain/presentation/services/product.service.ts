@@ -28,7 +28,7 @@ export class ProductService {
         const existProduct = await ProductModel.findOne({ reference: dto.reference });
         if (existProduct) throw CustomError.badRequest('Ya existe un producto con esta referencia');
 
-        await this.categoryService.validateSubCategoryExists(dto.subCategory);
+        // await this.categoryService.validateSubCategoryExists(dto.subCategory);
 
         const pricesWithIds = [];
         for (const price of dto.prices) {
@@ -46,11 +46,8 @@ export class ProductService {
                 reference: dto.reference,
                 code: dto.code,
                 description: dto.description,
-                category: dto.subCategory,
                 prices: pricesWithIds,
-                package: dto.packagee ?? [],
-                // stock: dto.stock ?? [],
-                subCategory: new mongoose.Types.ObjectId(dto.subCategory),
+                package: dto.packagee ?? []
             });
 
             await newProduct.save();
@@ -72,15 +69,12 @@ export class ProductService {
         try {
             if (dto.code !== undefined) product.code = dto.code;
             if (dto.description !== undefined) product.description = dto.description;
-            if (dto.category !== undefined) product.subCategory = new mongoose.Types.ObjectId(dto.category);
             if (dto.prices !== undefined) product.prices = new mongoose.Types.DocumentArray(
                 dto.prices.map(p => ({
                     PriceCategory: p.precio,
                     Value: p.valor,
                     PosValue: p.valorpos,
                 })))
-
-
 
             if (dto.packagee !== undefined) product.package = new mongoose.Types.DocumentArray(
                 dto.packagee.map(p => ({
@@ -129,28 +123,28 @@ export class ProductService {
         }
     }
 
-    public async updateCategory(_id: string, dto: UpdateCategoryDto) {
+    // public async updateCategory(_id: string, dto: UpdateCategoryDto) {
 
-        try {
-            const product = await ProductModel.findByIdAndUpdate(
-                { _id, isActive: true },
-                { $set: { subCategory: dto.category } },
-                { new: true }
-            ).populate('subCategory');
+    //     try {
+    //         const product = await ProductModel.findByIdAndUpdate(
+    //             { _id, isActive: true },
+    //             { $set: { subCategory: dto.category } },
+    //             { new: true }
+    //         ).populate('subCategory');
 
-            if (!product) {
-                throw CustomError.notFound('Producto no encontrado');
-            }
+    //         if (!product) {
+    //             throw CustomError.notFound('Producto no encontrado');
+    //         }
 
-            return {
-                message: 'Producto actualizado correctamente',
-                product: product,
-            };
-        } catch (err) {
-            console.error(err);
-            throw CustomError.internalServer(`Error al actualizar el paquete master: ${err}`);
-        }
-    }
+    //         return {
+    //             message: 'Producto actualizado correctamente',
+    //             product: product,
+    //         };
+    //     } catch (err) {
+    //         console.error(err);
+    //         throw CustomError.internalServer(`Error al actualizar el paquete master: ${err}`);
+    //     }
+    // }
 
 
     public async listProducts(info: any): Promise<ListProductDto[]> {
@@ -158,7 +152,6 @@ export class ProductService {
             const products = await ProductModel.find({ isActive: true })
                 .populate('prices.PriceCategory', 'code')
                 .populate('image', '_id url name idCloud')
-                .populate('subCategory', '_id name');
 
             if (!products || products.length === 0) {
                 throw CustomError.notFound('No se encontraron productos');
@@ -183,8 +176,7 @@ export class ProductService {
         try {
             const product = await ProductModel.findOne({ _id, isActive: true })
                 .populate('prices.PriceCategory', 'code')
-                .populate('image', '_id url name idCloud')
-                .populate('subCategory', '_id name');
+                .populate('image', '_id url name idCloud');
 
             if (!product) throw CustomError.notFound('Producto no encontrado');
 
@@ -192,8 +184,6 @@ export class ProductService {
                 ...product.toObject(),
                 image: product.image ?? null,
             };
-
-
 
             const filteredProductos = this.filterByPriceCategory(safeProduct, info);
             return GetProductByIdDto.fromModel(filteredProductos);
@@ -208,7 +198,6 @@ export class ProductService {
             const products = await ProductModel.find({ subCategory: categoryId, isActive: true })
                 .populate('prices.PriceCategory', 'code')
                 .populate('image', '_id url name idCloud')
-                .populate('subCategory', '_id name');
 
             if (!products || products.length === 0) {
                 throw CustomError.notFound('No se encontraron productos para esta categoría');
@@ -239,7 +228,7 @@ export class ProductService {
             }
 
             if (dto.categories && dto.categories.length > 0) {
-                query["subCategory"] = { $in: dto.categories };
+                query["subCategory.code"] = { $in: dto.categories };
             }
 
             if (dto.brands && dto.brands.length > 0) {
@@ -251,7 +240,6 @@ export class ProductService {
             const products = await ProductModel.find(query)
                 .populate('prices.PriceCategory', 'code')
                 .populate('image', '_id url name idCloud')
-                .populate('subCategory', '_id name')
                 .skip((dto.page - 1) * dto.limit)
                 .sort({ description: 1 })
                 .limit(dto.limit);

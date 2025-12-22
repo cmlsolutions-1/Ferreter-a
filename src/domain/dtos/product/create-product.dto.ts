@@ -19,18 +19,16 @@ export class CreateProductDto {
     public reference: string,
     public code: string,
     public description: string,
-    public subCategory: string,
     public prices: PriceDto[],
     public packagee?: PackageDto[],
   ) {}
 
   static create(object: { [key: string]: any }): [string?, CreateProductDto?] {
-    const { referencia, codigo, detalle, subCategory, precios, package: pkg } = object;
+    const { referencia, codigo, detalle, precios, package: pkg } = object;
 
     if (!referencia) return ['El campo referencia es obligatorio'];
     if (!codigo) return ['El campo code es obligatorio'];
     if (!detalle) return ['El campo detalle es obligatorio'];
-    if (!subCategory) return ['El campo category es obligatorio'];
     if (!precios || !Array.isArray(precios) || precios.length === 0) {
       return ['Debe incluir al menos un precio (prices)'];
     }
@@ -48,6 +46,6 @@ export class CreateProductDto {
       }
     }
 
-    return [undefined, new CreateProductDto(referencia, codigo, detalle, subCategory, precios, pkg)];
+    return [undefined, new CreateProductDto(referencia, codigo, detalle, precios, pkg)];
   }
 }

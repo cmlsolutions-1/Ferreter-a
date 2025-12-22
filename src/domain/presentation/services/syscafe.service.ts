@@ -1,5 +1,6 @@
 import { BrandModel } from "../../../data/mongo/models/brand.model";
 import { ProductModel } from "../../../data/mongo/models/product.model";
+import { SubCategoryModel } from "../../../data/mongo/models/subCategory.model";
 import { CustomError } from "../../errors/custom.errors";
 import { PriceCategoryService } from "./price.category.service";
 import { StockService } from "./stock.service";
@@ -47,6 +48,18 @@ export class SysCafeService {
                         { upsert: true, new: true }
                     );
                 }
+
+                const subCatCode = art.grupo?.codigo || '';
+                const subCatName = art.grupo?.nombre || '';
+
+                if (subCatCode) {
+                    await SubCategoryModel.findOneAndUpdate(
+                        { code: subCatCode },
+                        { $set: { code: subCatCode, name: subCatName } },
+                        { upsert: true, new: true }
+                    );
+                }
+
                 const producto = {
                     reference: art.referencia,
                     code: art.codigo,
@@ -55,6 +68,10 @@ export class SysCafeService {
                     brand: {
                         code: brandCode,
                         name: brandName,
+                    },
+                    subCategory: {
+                        code: subCatCode,
+                        name: subCatName,
                     },
                     prices: pricesWithIds,
                     UpdateDate: fechaSincronizacion

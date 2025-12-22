@@ -42,6 +42,8 @@ export class PriceCategoryService {
     public async getPriceCategoryIdByCode(code: string) {
         const category = await PriceCategoryModel.findOne({ code }).lean();
         if (!category) throw CustomError.notFound('Categoría no encontrada');
+
+         
         return category._id.toString();
     }
 

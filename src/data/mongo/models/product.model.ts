@@ -20,6 +20,11 @@ const brandSchema = new Schema({
     name: { type: String }
 }, { _id: false });
 
+const subCategorySchema = new Schema({
+    code: { type: String },
+    name: { type: String }
+}, { _id: false });
+
 const productSchema = new mongoose.Schema({
 
     reference: {
@@ -39,10 +44,7 @@ const productSchema = new mongoose.Schema({
         ref: 'Image',
     },
 
-    subCategory: {
-        type: Schema.Types.ObjectId,
-        ref: 'SubCategory'
-    },
+    subCategory: subCategorySchema,
     package: {
         type: [packageSchema]
     },

@@ -45,17 +45,17 @@ export class ProductController {
     }
   };
 
-  updateCategory = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { _id } = req.params;
-      const [err, dto] = UpdateCategoryDto.create(req.body);
-      if (err) return res.status(400).json({ error: true, message: err });
-      const result = await this.productService.updateCategory(_id, dto!);
-      return res.status(200).json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+  // updateCategory = async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const { _id } = req.params;
+  //     const [err, dto] = UpdateCategoryDto.create(req.body);
+  //     if (err) return res.status(400).json({ error: true, message: err });
+  //     const result = await this.productService.updateCategory(_id, dto!);
+  //     return res.status(200).json(result);
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 
   listProducts = async (req: Request, res: Response, next: NextFunction) => {
 

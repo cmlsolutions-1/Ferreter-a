@@ -38,7 +38,7 @@ export class CategoryService {
 
     public async listCategories(): Promise<ListCategoryDto[]> {
         try {
-            const categories = await SubCategoryModel.find({})
+            const categories = await SubCategoryModel.find({}).sort({ name: 1 });
             return ListCategoryDto.fromModelArray(categories);
         } catch (error) {
             throw CustomError.internalServer(`Error al listar las categorias: ${error}`);
