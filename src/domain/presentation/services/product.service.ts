@@ -170,7 +170,7 @@ export class ProductService {
         }
     }
 
-    public async listFavoriteProducts(dto: GetFavoriteProductDto,info: any){
+    public async listFavoriteProducts(dto: GetFavoriteProductDto, info: any) {
 
         try {
 
@@ -180,7 +180,7 @@ export class ProductService {
                 .skip((dto.page - 1) * dto.limit)
                 .sort({ description: 1 })
                 .limit(dto.limit);
-                
+
 
             if (!products || products.length === 0) {
                 throw CustomError.notFound('No se encontraron productos');
@@ -245,35 +245,47 @@ export class ProductService {
         }
     }
 
-    public async filterProducts(dto: FilterProductDto, info: any): Promise<{ products: ListProductDto[], total: number }> {
+    public async filterProducts(
+        dto: FilterProductDto,
+        info: any
+    ): Promise<{ products: ListProductDto[]; total: number }> {
         try {
             const query: any = { isActive: true };
 
-            if (dto.search) {
-                query.$or = [
-                    { reference: { $regex: dto.search.trim(), $options: 'i' } },
-                    { description: { $regex: dto.search.trim(), $options: 'i' } }
-                ];
+
+            if (dto.search?.trim()) {
+                const tokens = dto.search
+                    .trim()
+                    .split(/\s+/)
+                    .map(t => this.escapeRegExp(t))
+                    .filter(Boolean);
+
+                query.$and = tokens.map((token) => ({
+                    $or: [
+                        { reference: { $regex: token, $options: "i" } },
+                        { description: { $regex: token, $options: "i" } },
+                    ],
+                }));
             }
 
-            if (dto.categories && dto.categories.length > 0) {
+            if (dto.categories?.length) {
                 query["subCategory.code"] = { $in: dto.categories };
             }
 
-            if (dto.brands && dto.brands.length > 0) {
+            if (dto.brands?.length) {
                 query["brand.code"] = { $in: dto.brands };
             }
 
             const total = await ProductModel.countDocuments(query);
 
             const products = await ProductModel.find(query)
-                .populate('prices.PriceCategory', 'code')
-                .populate('image', '_id url name idCloud')
+                .populate("prices.PriceCategory", "code")
+                .populate("image", "_id url name idCloud")
                 .skip((dto.page - 1) * dto.limit)
                 .sort({ description: 1 })
                 .limit(dto.limit);
 
-            const safeProducts = products.map(product => ({
+            const safeProducts = products.map((product) => ({
                 ...product.toObject(),
                 image: product.image ?? null,
             }));
@@ -282,10 +294,12 @@ export class ProductService {
 
             return {
                 products: ListProductDto.fromModelArray(filteredProductos),
-                total
+                total,
             };
         } catch (error) {
-            throw CustomError.internalServer(`Error al filtrar los productos: ${error}`);
+            throw CustomError.internalServer(
+                `Error al filtrar los productos: ${error}`
+            );
         }
     }
     public async getPriceByCategory(productId: string, priceCategoryId: string) {
@@ -382,6 +396,10 @@ export class ProductService {
                 { $set: { platformStock: newPlatformStock } }
             );
         }
+    }
+
+    private escapeRegExp(text: string): string {
+        return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     }
 
 }
