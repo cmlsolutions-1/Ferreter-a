@@ -12,7 +12,8 @@ import { PriceCategoryModel } from '../../../data/mongo/models/priceCategory.mod
 import { privateDecrypt } from 'crypto';
 import { PriceCategoryService } from './price.category.service';
 import { UpdateMasterDto } from '../../dtos/product/update-master.dto';
-import { UpdateCategoryDto } from '../../dtos/product/update-category.dto';
+import { FavoriteDto } from '../../dtos/product/update-category.dto';
+import { GetFavoriteProductDto } from '../../dtos/product/get-favorite-product';
 
 
 export class ProductService {
@@ -123,28 +124,27 @@ export class ProductService {
         }
     }
 
-    // public async updateCategory(_id: string, dto: UpdateCategoryDto) {
+    public async putlikeFavorite(_id: string, dto: FavoriteDto) {
 
-    //     try {
-    //         const product = await ProductModel.findByIdAndUpdate(
-    //             { _id, isActive: true },
-    //             { $set: { subCategory: dto.category } },
-    //             { new: true }
-    //         ).populate('subCategory');
+        try {
+            const product = await ProductModel.findByIdAndUpdate(
+                { _id, isActive: true },
+                { $set: { isFavorite: dto.state } },
+                { new: true }
+            );
 
-    //         if (!product) {
-    //             throw CustomError.notFound('Producto no encontrado');
-    //         }
-
-    //         return {
-    //             message: 'Producto actualizado correctamente',
-    //             product: product,
-    //         };
-    //     } catch (err) {
-    //         console.error(err);
-    //         throw CustomError.internalServer(`Error al actualizar el paquete master: ${err}`);
-    //     }
-    // }
+            if (!product) {
+                throw CustomError.notFound('Producto no encontrado');
+            }
+            return {
+                message: 'Producto actualizado correctamente',
+                product: product,
+            };
+        } catch (err) {
+            console.error(err);
+            throw CustomError.internalServer(`Error al actualizar el producto: ${err}`);
+        }
+    }
 
 
     public async listProducts(info: any): Promise<ListProductDto[]> {
@@ -152,6 +152,35 @@ export class ProductService {
             const products = await ProductModel.find({ isActive: true })
                 .populate('prices.PriceCategory', 'code')
                 .populate('image', '_id url name idCloud')
+
+            if (!products || products.length === 0) {
+                throw CustomError.notFound('No se encontraron productos');
+            }
+
+            const safeProducts = products.map(product => ({
+                ...product.toObject(),
+                image: product.image ?? null,
+            }));
+
+            const filteredProductos = this.filterByPriceCategory(safeProducts, info);
+
+            return ListProductDto.fromModelArray(filteredProductos);
+        } catch (error) {
+            throw CustomError.internalServer(`Error al listar los productos: ${error}`);
+        }
+    }
+
+    public async listFavoriteProducts(dto: GetFavoriteProductDto,info: any){
+
+        try {
+
+            const products = await ProductModel.find({ isActive: true, isFavorite: true })
+                .populate('prices.PriceCategory', 'code')
+                .populate('image', '_id url name idCloud')
+                .skip((dto.page - 1) * dto.limit)
+                .sort({ description: 1 })
+                .limit(dto.limit);
+                
 
             if (!products || products.length === 0) {
                 throw CustomError.notFound('No se encontraron productos');

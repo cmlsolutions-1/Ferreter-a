@@ -65,6 +65,10 @@ const productSchema = new mongoose.Schema({
     },
     UpdateDate: {
         type: Date,
+    },
+    isFavorite: {
+        type: Boolean,
+        default: false
     }
 });
 

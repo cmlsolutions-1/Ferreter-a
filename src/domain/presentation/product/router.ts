@@ -18,11 +18,13 @@ export class ProductRoutes {
     router.post('/', productController.createProduct);
     router.put('/:reference', productController.updateProduct);
     router.put('/update-master/:_id', productController.updateMaster);
-    // router.put('/update-category/:_id', productController.updateCategory);
+    router.put('/favorite/:_id', productController.putLikeFavorite);
+    router.get('/list-favorite/',[AuthMiddleware.validateJWT], productController.listFavorites);
     router.get('/', [AuthMiddleware.validateJWT], productController.listProducts);
     router.post('/filter', [AuthMiddleware.validateJWT], productController.filterProducts);
     router.get('/:_id', [AuthMiddleware.validateJWT], productController.getProductById);
     router.get('/category/:categoryId', [AuthMiddleware.validateJWT], productController.getProductsByCategory);
+    
 
     return router;
   }

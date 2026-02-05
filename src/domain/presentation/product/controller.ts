@@ -4,7 +4,8 @@ import { CreateProductDto } from '../../dtos/product/create-product.dto';
 import { UpdateProductDto } from '../../dtos/product/update-product';
 import { FilterProductDto } from '../../dtos/product/filter-product.dto';
 import { UpdateMasterDto } from '../../dtos/product/update-master.dto';
-import { UpdateCategoryDto } from '../../dtos/product/update-category.dto';
+import { FavoriteDto } from '../../dtos/product/update-category.dto';
+import { GetFavoriteProductDto } from '../../dtos/product/get-favorite-product';
 
 export class ProductController {
   constructor(private readonly productService: ProductService) { }
@@ -45,17 +46,17 @@ export class ProductController {
     }
   };
 
-  // updateCategory = async (req: Request, res: Response, next: NextFunction) => {
-  //   try {
-  //     const { _id } = req.params;
-  //     const [err, dto] = UpdateCategoryDto.create(req.body);
-  //     if (err) return res.status(400).json({ error: true, message: err });
-  //     const result = await this.productService.updateCategory(_id, dto!);
-  //     return res.status(200).json(result);
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
+  putLikeFavorite = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { _id } = req.params;
+      const [err, dto] = FavoriteDto.create(req.body);
+      if (err) return res.status(400).json({ error: true, message: err });
+      const result = await this.productService.putlikeFavorite(_id, dto!);
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 
   listProducts = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -63,6 +64,19 @@ export class ProductController {
       const { _id } = req.params;
       const { priceCategory, role } = req.body.user!;
       const products = await this.productService.listProducts({ priceCategory, role });
+      return res.status(200).json(products);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  listFavorites = async (req: Request, res: Response, next: NextFunction) => {
+
+    try {
+      const [err, dto] = GetFavoriteProductDto.create(req.query);
+      if (err) return res.status(400).json({ error: true, message: err });
+      const { priceCategory, role } = req.body.user!;
+      const products = await this.productService.listFavoriteProducts(dto!,{ priceCategory, role });
       return res.status(200).json(products);
     } catch (error) {
       next(error);

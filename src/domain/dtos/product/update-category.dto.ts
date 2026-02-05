@@ -1,14 +1,14 @@
-export class UpdateCategoryDto {
+export class FavoriteDto {
   private constructor(
-    public category?: string
+    public state?: boolean
   ) { }
 
-  static create(object: { [key: string]: any }): [string?, UpdateCategoryDto?] {
-    const { category } = object;
+  static create(object: { [key: string]: any }): [string?, FavoriteDto?] {
+    const { state } = object;
 
-    if (typeof category !== 'string') return ['el valor debe ser un string'];
+    if (typeof state !== 'boolean') return ['el valor debe ser un boolean'];
 
-    return [undefined, new UpdateCategoryDto(category)];
+    return [undefined, new FavoriteDto(state)];
     
   }
 }
