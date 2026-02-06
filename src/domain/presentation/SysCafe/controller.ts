@@ -27,4 +27,15 @@ export class SyscafeController {
             next(error);
         }   
     }
+
+
+    registerFlag = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+
+            const result = await this.syscafeService.registerFlag();
+            return res.status(200).json(result);
+        } catch (error) {
+            next(error);
+        }   
+    }
 }

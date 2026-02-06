@@ -3,6 +3,7 @@ import { ProductModel } from "../../../data/mongo/models/product.model";
 import { SubCategoryModel } from "../../../data/mongo/models/subCategory.model";
 import { SyncControlModel } from "../../../data/mongo/models/sync-contro.model";
 import { CustomError } from "../../errors/custom.errors";
+import { EmailService } from "./email.service";
 import { PriceCategoryService } from "./price.category.service";
 import { StockService } from "./stock.service";
 import mongoose from "mongoose";
@@ -13,7 +14,8 @@ export class SysCafeService {
 
     public constructor(
         private readonly priceCategoryService: PriceCategoryService,
-        private readonly stockService: StockService
+        private readonly stockService: StockService,
+        private readonly emailService: EmailService,
     ) {
     }
 
@@ -97,6 +99,7 @@ export class SysCafeService {
             return { message: '✅ Datos procesados correctamente' };
         } catch (error) {
             console.error('❌ Error al insertar artículos:', error);
+            await this.sendEmail("cmlsolutions3@gmail.com", `<h1>Proceso de sincronización de artivulos fallido</h1><p>Error: ${error}</p>`, 'Error al recibir articulos desde SysCafe');
             throw CustomError.internalServer('Error al insertar artículos: ' + error);
         }
     }
@@ -104,44 +107,50 @@ export class SysCafeService {
     public async processStock(stockItems: { referencia: string; bodega: string; cantidad: number }[]) {
 
         try {
-
-            const ahora = new Date();
-            const fechaSincronizacion = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
-
-            const ctrl = await SyncControlModel.findOne({ key: "products_finalize" }).lean();
-            const yaFinalizoHoy = ctrl?.dateValue && ctrl.dateValue.getTime() === fechaSincronizacion.getTime();
-
             const nuevosDatos = Array.isArray(stockItems) ? stockItems : [stockItems];
             const result = await this.stockService.processStock(nuevosDatos);
-
-            const existeSyncHoy = await ProductModel.exists({
-                UpdateDate: fechaSincronizacion
-            });
-
-            if (!existeSyncHoy) {
-                console.warn("⚠️ No hubo sync de artículos hoy, no se desactivan productos.");
-                return result;
-            }
-
-            if (!yaFinalizoHoy) {
-
-                await ProductModel.updateMany(
-                    { isActive: true, UpdateDate: { $ne: fechaSincronizacion } },
-                    { $set: { isActive: false } }
-                );
-
-                await SyncControlModel.findOneAndUpdate(
-                    { key: "products_finalize" },
-                    { $set: { dateValue: fechaSincronizacion } },
-                    { upsert: true, new: true }
-                );
-            }
 
             return result;
 
         } catch (error: any) {
             console.error("❌ Error al procesar stock:", error);
+            await this.sendEmail("cmlsolutions3@gmail.com", `<h1>Proceso de sincronización de stock fallido</h1><p>Error: ${error.message}</p>`, 'Error al recibir stock desde SysCafe');
             throw CustomError.internalServer(`Error al insertar stock ${error.message}`);
         }
+    }
+
+    public async registerFlag() {
+
+        const ahora = new Date();
+        const fechaSincronizacion = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+
+        const ctrl = await SyncControlModel.findOne({ key: "products_finalize" }).lean();
+        const yaFinalizoHoy = ctrl?.dateValue && ctrl.dateValue.getTime() === fechaSincronizacion.getTime();
+
+        if (!yaFinalizoHoy) {
+
+            await ProductModel.updateMany(
+                { isActive: true, UpdateDate: { $ne: fechaSincronizacion } },
+                { $set: { isActive: false } }
+            );
+
+            await SyncControlModel.findOneAndUpdate(
+                { key: "products_finalize" },
+                { $set: { dateValue: fechaSincronizacion } },
+                { upsert: true, new: true }
+            );
+        }
+    }
+
+
+    private sendEmail = async (email: string, html: string, subject: string) => {
+        const options = {
+            to: email,
+            subject,
+            htmlBody: html,
+        }
+        const isSent = await this.emailService.sendEmail(options);
+        if (!isSent) console.log('Error sending email');
+        return true;
     }
 }
