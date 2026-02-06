@@ -61,7 +61,7 @@ export class SysCafeService {
                     );
                 }
 
-                const producto : any = {
+                const producto: any = {
                     reference: art.referencia,
                     code: art.codigo,
                     description: art.detalle,
@@ -111,6 +111,18 @@ export class SysCafeService {
             const ctrl = await SyncControlModel.findOne({ key: "products_finalize" }).lean();
             const yaFinalizoHoy = ctrl?.dateValue && ctrl.dateValue.getTime() === fechaSincronizacion.getTime();
 
+            const nuevosDatos = Array.isArray(stockItems) ? stockItems : [stockItems];
+            const result = await this.stockService.processStock(nuevosDatos);
+
+            const existeSyncHoy = await ProductModel.exists({
+                UpdateDate: fechaSincronizacion
+            });
+
+            if (!existeSyncHoy) {
+                console.warn("⚠️ No hubo sync de artículos hoy, no se desactivan productos.");
+                return result;
+            }
+
             if (!yaFinalizoHoy) {
 
                 await ProductModel.updateMany(
@@ -125,8 +137,6 @@ export class SysCafeService {
                 );
             }
 
-            const nuevosDatos = Array.isArray(stockItems) ? stockItems : [stockItems];
-            const result = await this.stockService.processStock(nuevosDatos);
             return result;
 
         } catch (error: any) {
