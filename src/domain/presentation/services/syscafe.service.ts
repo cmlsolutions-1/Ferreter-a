@@ -1,6 +1,7 @@
 import { BrandModel } from "../../../data/mongo/models/brand.model";
 import { ProductModel } from "../../../data/mongo/models/product.model";
 import { SubCategoryModel } from "../../../data/mongo/models/subCategory.model";
+import { SyncControlModel } from "../../../data/mongo/models/sync-contro.model";
 import { CustomError } from "../../errors/custom.errors";
 import { PriceCategoryService } from "./price.category.service";
 import { StockService } from "./stock.service";
@@ -60,7 +61,7 @@ export class SysCafeService {
                     );
                 }
 
-                const producto = {
+                const producto : any = {
                     reference: art.referencia,
                     code: art.codigo,
                     description: art.detalle,
@@ -77,6 +78,15 @@ export class SysCafeService {
                     UpdateDate: fechaSincronizacion
                 };
 
+                if (art.embalaje !== null && art.embalaje !== undefined && art.embalaje !== "") {
+                    producto.package = [
+                        {
+                            typePackage: "Master",
+                            Mount: Number(art.embalaje)
+                        }
+                    ];
+                }
+
                 await ProductModel.findOneAndUpdate(
                     { reference: producto.reference },
                     { $set: producto },
@@ -84,16 +94,10 @@ export class SysCafeService {
                 );
             }
 
-            await ProductModel.updateMany(
-                { UpdateDate: { $ne: fechaSincronizacion } },
-                { $set: { isActive: false } }
-            );
-
-
             return { message: '✅ Datos procesados correctamente' };
         } catch (error) {
             console.error('❌ Error al insertar artículos:', error);
-            throw CustomError.internalServer('Error al insertar artículos');
+            throw CustomError.internalServer('Error al insertar artículos: ' + error);
         }
     }
 
@@ -101,13 +105,33 @@ export class SysCafeService {
 
         try {
 
+            const ahora = new Date();
+            const fechaSincronizacion = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+
+            const ctrl = await SyncControlModel.findOne({ key: "products_finalize" }).lean();
+            const yaFinalizoHoy = ctrl?.dateValue && ctrl.dateValue.getTime() === fechaSincronizacion.getTime();
+
+            if (!yaFinalizoHoy) {
+
+                await ProductModel.updateMany(
+                    { isActive: true, UpdateDate: { $ne: fechaSincronizacion } },
+                    { $set: { isActive: false } }
+                );
+
+                await SyncControlModel.findOneAndUpdate(
+                    { key: "products_finalize" },
+                    { $set: { dateValue: fechaSincronizacion } },
+                    { upsert: true, new: true }
+                );
+            }
+
             const nuevosDatos = Array.isArray(stockItems) ? stockItems : [stockItems];
             const result = await this.stockService.processStock(nuevosDatos);
             return result;
 
         } catch (error: any) {
             console.error("❌ Error al procesar stock:", error);
-            throw CustomError.internalServer(`Error al insertar artículos ${error.message}`);
+            throw CustomError.internalServer(`Error al insertar stock ${error.message}`);
         }
     }
 }

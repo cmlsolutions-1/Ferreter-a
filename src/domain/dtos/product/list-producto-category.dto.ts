@@ -12,6 +12,7 @@ export class ListProductByCategoryDto {
         public precios: ProductPriceDto[],
         public packages: any[],
         public stock: number,
+        public isFavorite?: boolean,
   ) {}
 
   static fromModel(model: any): ListProductByCategoryDto {
@@ -25,6 +26,7 @@ export class ListProductByCategoryDto {
       ProductPriceDto.fromModelArray(model.prices || []),
       model.package,
       model.platformStock || 0,
+      model.isFavorite || false,
     );
   }
 

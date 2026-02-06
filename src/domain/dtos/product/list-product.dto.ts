@@ -13,6 +13,7 @@ export class ListProductDto {
     public packages: any[],
     public stock: number,
     public brand?: any,
+    public isFavorite?: boolean,
   ) {}
 
   static fromModel(model: any): ListProductDto {
@@ -27,6 +28,7 @@ export class ListProductDto {
       model.package ,
       model.platformStock || 0,
       model.brand || null,
+      model.isFavorite || false,
     );
   }
 

@@ -15,6 +15,7 @@ export class GetProductByIdDto {
     public packages: any[],
     public stock: number,
     public brand?: any,
+    public isFavorite?: boolean,
   ) {}
 
   static fromModel(model: any): GetProductByIdDto {
@@ -29,6 +30,7 @@ export class GetProductByIdDto {
       model.package || [],
       model.platformStock || 0,
       model.brand || null,
+      model.isFavorite || false,
     );
   }
 }
