@@ -30,6 +30,11 @@ const orderSchema = new mongoose.Schema({
     total: {
         type: Number,
     },
+    addres: {
+        type: String,
+        required: false,
+        default: ""
+    },
     discounts: { type: Number },
     isPaid: {
         type: Boolean
@@ -60,7 +65,7 @@ const orderSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    offers: [appliedOfferSchema]
+    offers: [appliedOfferSchema], 
 });
 
 

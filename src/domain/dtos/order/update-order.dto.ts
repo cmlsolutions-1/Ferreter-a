@@ -16,7 +16,8 @@ export class UpdateOrderDto {
     public updatedDate?: Date,
     public idClient?: Types.ObjectId | string,
     public idSalesPerson?: Types.ObjectId | string,
-    public items?: UpdateOrderItemDto[] 
+    public items?: UpdateOrderItemDto[],
+    public addres?: string,
   ) {}
 
   static update(data: { [key: string]: any }): [string?, UpdateOrderDto?] {
@@ -27,7 +28,8 @@ export class UpdateOrderDto {
       total,
       idClient,
       idSalesPerson,
-      items
+      items,
+      addres
     } = data;
 
     if (id !== undefined && typeof id !== 'string') {
@@ -86,7 +88,8 @@ export class UpdateOrderDto {
       new Date(),
       idClient,
       idSalesPerson,
-      items
+      items,
+      addres
     )];
   }
 }

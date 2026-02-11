@@ -40,7 +40,8 @@ export class OrderService {
         createdDate: new Date(),
         idClient: dto.idClient,
         idSalesPerson: idSalesPerson,
-        offers
+        offers,
+        addres: dto.addres
       });
 
       const orderItemDocs = dto.orderItems.map(item => ({

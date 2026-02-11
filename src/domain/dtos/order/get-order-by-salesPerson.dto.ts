@@ -13,7 +13,8 @@ export class GetOrderBySalesPersonDto {
     public Client: any,
     public items: OrderItemDto[],
     public offers?: any[],
-    public orderNumber?: string
+    public orderNumber?: string,
+    public addres?: string
   ) {}
 
   static fromModel(order: any, items: any[]): GetOrderBySalesPersonDto {
@@ -29,7 +30,8 @@ export class GetOrderBySalesPersonDto {
       order.idClient,
       OrderItemDto.fromModelArray(items),
       order.offers ?? [],
-      order.orderNumber ?? "Sin consecutivo"
+      order.orderNumber ?? "Sin consecutivo",
+      order.addres ?? ""
     );
   }
 }
