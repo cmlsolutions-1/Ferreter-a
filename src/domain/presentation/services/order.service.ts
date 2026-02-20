@@ -184,11 +184,8 @@ export class OrderService {
 
 
     populatedOrder.isCanceled = true;
-    populatedOrder.syscafeOrder = dto.reasonCancellation;
-
+    populatedOrder.reasonCancellation = dto.reasonCancellation;
     await populatedOrder.save();
-    
-
     return true;
 
   }
