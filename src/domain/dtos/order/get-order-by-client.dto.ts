@@ -13,7 +13,9 @@ export class GetOrderByClientDto {
     public items: OrderItemDto[],
     public offers?: any[],
     public orderNumber?: string,
-    public addres?: string
+    public addres?: string,
+    public isCanceled? : boolean,
+    public reasonCancellation? : string
     
   ) {}
 
@@ -30,8 +32,9 @@ export class GetOrderByClientDto {
       OrderItemDto.fromModelArray(items),
       order.offers ?? [],
       order.orderNumber ?? "Sin consecutivo",
-      order.addres ?? ""
-      
+      order.addres ?? "",
+      order.isCanceled,
+      order.reasonCancellation
     );
   }
 }

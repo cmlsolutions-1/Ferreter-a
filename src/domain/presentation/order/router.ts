@@ -40,6 +40,7 @@ export class OrderRoutes {
         router.get('/getOrdersByClient/:id', [AuthMiddleware.validateJWT, hasRole('Client')], orderController.getOrderByClient);
         router.get('/getOrdersById/:id', [AuthMiddleware.validateJWT], orderController.getOrderById);
         router.get('/', [AuthMiddleware.validateJWT, hasRole('Admin')], orderController.getAllOrder);
+        router.put('/cancel', [AuthMiddleware.validateJWT, hasRole('Admin')], orderController.cancelOrder);
 
         return router;
     }

@@ -39,6 +39,18 @@ const orderSchema = new mongoose.Schema({
     isPaid: {
         type: Boolean
     },
+    isCanceled: {
+
+        type: Boolean,
+        required: false,
+        default: true
+    },
+
+    reasonCancellation : {
+        type: String,
+        required: false,
+        default: ""
+    },
     paymendDate: {
         type: Date,
     },

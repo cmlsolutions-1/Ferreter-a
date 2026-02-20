@@ -13,6 +13,8 @@ import { GetOrderByIdDto } from '../../dtos/order/get-order-by-id.dto';
 import { EmailService } from './email.service';
 import { generateOrderEmailTemplate } from '../order/templates/order-email.template';
 import { OfferService } from './offer.service';
+import { CancelOrderDto } from '../../dtos/order/cancel-order.dto';
+import { ProductModel } from '../../../data/mongo/models/product.model';
 
 
 export class OrderService {
@@ -153,6 +155,41 @@ export class OrderService {
     const html = generateOrderEmailTemplate(orderData, clientName, clientIdToShow, salesPersonName);
 
     await this.sendEmail(clientEmail, html, "Orden Gestionada");
+
+  }
+
+  public async setOrderAsCanceled(dto: CancelOrderDto): Promise<boolean> {
+
+    const populatedOrder = await OrderModel.findOne({ _id: dto._id })
+
+    if (!populatedOrder) throw CustomError.notFound('Orden no encontrada');
+
+    const items = await OrderItemModel.find({ idOrder: dto._id })
+      .populate('idProduct', 'title description reference platformStock')
+      .lean() as any;
+
+    for (const item of items) {
+
+      const quantity = item.quantity;
+
+      if (item.idProduct?._id) {
+        await ProductModel.findByIdAndUpdate(
+          item.idProduct._id,
+          {
+            $inc: { platformStock: quantity }
+          }
+        );
+      }
+    }
+
+
+    populatedOrder.isCanceled = true;
+    populatedOrder.syscafeOrder = dto.reasonCancellation;
+
+    await populatedOrder.save();
+    
+
+    return true;
 
   }
 
