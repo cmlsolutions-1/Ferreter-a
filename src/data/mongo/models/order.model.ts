@@ -43,7 +43,7 @@ const orderSchema = new mongoose.Schema({
 
         type: Boolean,
         required: false,
-        default: true
+        default: false
     },
 
     reasonCancellation : {
