@@ -43,7 +43,9 @@ export class OrderService {
         idClient: dto.idClient,
         idSalesPerson: idSalesPerson,
         offers,
-        addres: dto.addres
+        addres: dto.addres,
+        isCanceled : false,
+        reasonCancellation : ""
       });
 
       const orderItemDocs = dto.orderItems.map(item => ({
