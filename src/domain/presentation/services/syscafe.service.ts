@@ -80,11 +80,11 @@ export class SysCafeService {
                     UpdateDate: fechaSincronizacion
                 };
 
-                if (art.embalaje !== null && art.embalaje !== undefined && art.embalaje !== "") {
+                if (art.cantembala !== null && art.cantembala !== undefined && art.cantembala !== "") {
                     producto.package = [
                         {
                             typePackage: "Master",
-                            Mount: Number(art.embalaje)
+                            Mount: Number(art.cantembala)
                         }
                     ];
                 }
