@@ -33,6 +33,9 @@ export class OrderService {
     const idSalesPerson = await this.userService.getSalesPersonIdByClientId(dto.idClient);
 
     try {
+
+      await this.validatePlatformStock(dto.orderItems);
+
       const order = await OrderModel.create({
         subTotal,
         tax,
@@ -44,8 +47,8 @@ export class OrderService {
         idSalesPerson: idSalesPerson,
         offers,
         addres: dto.addres,
-        isCanceled : false,
-        reasonCancellation : ""
+        isCanceled: false,
+        reasonCancellation: ""
       });
 
       const orderItemDocs = dto.orderItems.map(item => ({
@@ -62,7 +65,34 @@ export class OrderService {
       await this.processAndSendOrderEmail(order._id.toString());
 
     } catch (error) {
+
       throw CustomError.internalServer(`Error al crear la orden: ${error}`);
+    }
+  }
+
+  async validatePlatformStock(orderItems: { idProduct: string; quantity: number }[]) {
+ 
+    const grouped = new Map<string, number>();
+    for (const it of orderItems) {
+      grouped.set(it.idProduct, (grouped.get(it.idProduct) ?? 0) + it.quantity);
+    }
+
+    const ids = Array.from(grouped.keys());
+    const products = await ProductModel.find({ _id: { $in: ids } })
+      .select("description platformStock")
+      .lean();
+
+    const byId = new Map(products.map(p => [p._id.toString(), p]));
+
+    for (const [idProduct, qty] of grouped.entries()) {
+      const p: any = byId.get(idProduct);
+      if (!p) throw CustomError.notFound("Producto no encontrado");
+
+      if ((p.platformStock ?? 0) < qty) {
+        throw CustomError.badRequest(
+          `Stock insuficiente para "${p.description}". Disponible: ${p.platformStock}, solicitado: ${qty}`
+        );
+      }
     }
   }
 
