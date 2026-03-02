@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsnd --respawn --clear src/app.ts",
-    "build": "rm -rf ./dist && tsc",
+    "build": "rimraf -rf ./dist && tsc",
     "start": "npm run build && node dist/app.js",
     "seed": "ts-node-dev ./src/data/seed/seed.ts"
   },
@@ -23,7 +23,7 @@
     "@types/node": "^20.5.9",
     "@types/nodemailer": "^6.4.9",
     "@types/uuid": "^9.0.4",
-    "rimraf": "^5.0.1",
+    "rimraf": "^5.0.10",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.2"
