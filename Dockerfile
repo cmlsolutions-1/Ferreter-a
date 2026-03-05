@@ -1,8 +1,9 @@
+
 # 1️⃣ Etapa de dependencias
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # 2️⃣ Etapa de build (compila TS)
 FROM node:20-alpine AS build
@@ -17,13 +18,16 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+
 # Solo instala dependencias necesarias para producción
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 # Copia el código ya compilado
 COPY --from=build /app/dist ./dist
 
+COPY --from=build /app/templates ./templates
+
 EXPOSE 3001
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/app.js"]

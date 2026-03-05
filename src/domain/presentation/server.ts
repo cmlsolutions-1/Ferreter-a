@@ -40,11 +40,6 @@ export class Server {
     
     const app = express();
 
-    //* Public Folder
-    this.app.use(
-      express.static(path.join(process.cwd(), 'src', this.publicPath))
-    );
-
 
     //* Routes
     this.app.use(this.routes);
@@ -52,10 +47,8 @@ export class Server {
     this.app.use(errorHandler);
 
 
-    //* SPA
-    this.app.get('*', (req, res) => {
-      const indexPath = path.join(process.cwd(), 'src', this.publicPath, 'index.html');
-      res.sendFile(indexPath);
+    this.app.use((req, res) => {
+      res.status(404).json({ message: "Not Found" });
     });
 
 
